@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from app.optscale_api.auth_api import OptscaleAuth
+from app.optscale_api.auth_api import OptScaleAuth
 
 
 @pytest.mark.asyncio
@@ -10,7 +10,7 @@ class TestOptscaleAuthAPI:
     @pytest.fixture(autouse=True)
     def setup(self, mocker):
         # Initialize OptScaleAPI instance
-        self.opt_scale_auth = OptscaleAuth()
+        self.opt_scale_auth = OptScaleAuth()
 
         # Mock the post method on the APIClient instance's client
         self.mock_post = mocker.patch.object(self.opt_scale_auth.api_client, 'post')
@@ -20,7 +20,6 @@ class TestOptscaleAuthAPI:
         self.opt_scale_auth.obtain_admin_api_key = AsyncMock(
             return_value=mock_obtain_admin_api_key_response)
 
-    # todo : from here
     async def test_user_auth_token_with_admin_api_key(self):
         mock_response = {
             "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxNDA3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2lzdGVyOkZhbHNlCjAwMWFjaWQgcHJvdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI6eqCgqohlKYCzcKCchmHES38yC96nQo",
@@ -39,6 +38,9 @@ class TestOptscaleAuthAPI:
         )
         self.mock_post.assert_called_once_with(
             endpoint="/auth/v2/token",
+            headers={
+                "Secret": "f2312f2b-46h0-4456-o0i9-58e64f2j6725",
+            },
             data={
                 "user_id": "f0bd0c4a-7c55-45b7-8b58-27740e38789a"
             }
@@ -65,7 +67,6 @@ class TestOptscaleAuthAPI:
         )
         self.mock_post.assert_called_once_with(
             endpoint="/auth/v2/token",
-            headers={'Secret': 'f2312f2b-46h0-4456-o0i9-58e64f2j6725'},
             data={
                 "password": password,
                 "email": email

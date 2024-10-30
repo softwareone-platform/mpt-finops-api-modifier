@@ -6,24 +6,33 @@ from app import settings
 AUTH_TOKEN_ENDPOINT = "/auth/v2/token"
 
 
-async def build_api_key_header(admin_api_key: str) -> dict[str, str]:
+def build_api_key_header(admin_api_key: str) -> dict[str, str]:
     """
     The key Secret added to the headers allows to perform operation at the admin level
 
     """
-    headers = {
+    return {
         "Secret": admin_api_key
     }
-    return headers
 
 
-class OptscaleAuth:
+def build_bearer_token_header(bearer_token: str) -> dict[str, str]:
+    return {
+        "Authorization": f"Bearer {bearer_token}"
+    }
+
+
+class OptScaleAuth:
     def __init__(self):
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
 
     @staticmethod
-    async def obtain_admin_api_key(admin_api_key: str):
-        return await build_api_key_header(admin_api_key=admin_api_key)
+    def obtain_admin_api_key(admin_api_key: str):
+        return build_api_key_header(admin_api_key=admin_api_key)
+
+    @staticmethod
+    def get_bearer_token_header(bearer_token: str):
+        return build_bearer_token_header(bearer_token=bearer_token)
 
     async def obtain_auth_token_with_user_credentials(self, email: str,
                                                       password: str) -> str | None:
@@ -39,7 +48,7 @@ class OptscaleAuth:
         payload = {
             "user_id": user_id
         }
-        headers = await build_api_key_header(admin_api_key=admin_api_key)
+        headers = build_api_key_header(admin_api_key=admin_api_key)
         response = await self.api_client.post(endpoint=AUTH_TOKEN_ENDPOINT,
                                               headers=headers,
                                               data=payload

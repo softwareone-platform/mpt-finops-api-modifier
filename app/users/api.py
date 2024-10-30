@@ -6,7 +6,7 @@ from typing import Annotated, Optional, Callable, Any
 
 from fastapi import APIRouter, Depends, status as http_status
 from app.core.auth_jwt_bearer import JWTBearer
-from app.optscale_api.users_api import OptScaleAPI
+from app.optscale_api.users_api import OptScaleUserAPI
 
 logger = logging.getLogger("api.users")
 router = APIRouter()
@@ -33,4 +33,4 @@ async def create_user(
         display_name: str,
         password: str
 ):
-    return await OptScaleAPI.create_user(email=email, display_name=display_name, password=password)
+    return await OptScaleUserAPI.create_user(email=email, display_name=display_name, password=password)

@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock
 
 import pytest
-from app.optscale_api.users_api import OptScaleAPI
+from app.optscale_api.users_api import OptScaleUserAPI
 
 
 @pytest.mark.asyncio
@@ -10,7 +10,7 @@ class TestOptscaleAPI:
     @pytest.fixture(autouse=True)
     def setup(self, mocker):
         # Initialize OptScaleAPI instance
-        self.opt_scale_api = OptScaleAPI()
+        self.opt_scale_api = OptScaleUserAPI()
 
 
         # Mock the post method on the APIClient instance's client
