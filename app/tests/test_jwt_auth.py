@@ -9,11 +9,9 @@ JWT_SECRET = settings.secret
 JWT_ALGORITHM = settings.algorithm
 JWT_ISSUER = settings.issuer
 JWT_AUDIENCE = settings.audience
-
 SUBJECT = "test"
 
 
-# Helper function to create tokens
 def create_jwt_token(subject: str, expires_in: int = 3600) -> str:
     """
     Generates a JWT token with the required claims: exp, nbf, iss, aud.
@@ -44,7 +42,6 @@ class MockRequest:
         self.headers = {"Authorization": authorization} if authorization else {}
 
 
-@pytest.mark.asyncio
 class TestDecodeJWT:
     def test_decode_jwt_valid_token(self):
         subject = "test"
@@ -137,7 +134,6 @@ class TestDecodeJWT:
         assert decoded_token is None
 
 
-@pytest.mark.asyncio
 class TestVerifyJWT:
     def test_valid_jwt(self):
         token = create_jwt_token(subject=SUBJECT)

@@ -1,19 +1,7 @@
 import uuid as uuid_pkg
 from datetime import datetime
-
-from pydantic import BaseModel
 from sqlalchemy import text
 from sqlmodel import Field, SQLModel
-
-
-class HealthCheck(BaseModel):
-    application_name: str
-    application_version: str
-    application_info: str
-
-
-class CustomResponse(BaseModel):
-    response: str
 
 
 class UUIDModel(SQLModel):
