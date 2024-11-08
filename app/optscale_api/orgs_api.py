@@ -44,7 +44,7 @@ class OptScaleOrgAPI:
                 return None
             # get the user's org
             response = await self.api_client.get(endpoint=ORG_ENDPOINT,
-                                                 headers=self.auth_client._build_bearer_token_header(
+                                                 headers=self.auth_client.build_bearer_token_header(
                                                      bearer_token=user_access_token))
             if len(response) == 0:
                 logger.info(NO_ORG_MESSAGE.format(user_id))
@@ -94,7 +94,7 @@ class OptScaleOrgAPI:
             # Create the user's organization
             payload = {"name": org_name, "currency": currency}
             response = await self.api_client.post(endpoint=ORG_ENDPOINT,
-                                                  headers=self.auth_client._build_bearer_token_header(
+                                                  headers=self.auth_client.build_bearer_token_header(
                                                       bearer_token=user_access_token,
 
                                                   ), data=payload)

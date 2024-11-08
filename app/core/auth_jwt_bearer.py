@@ -1,5 +1,7 @@
 import time
 import logging
+from typing import Optional
+
 import jwt
 from app import settings
 from fastapi import Request, HTTPException
@@ -14,7 +16,7 @@ JWT_ISSUER = settings.issuer
 logger = logging.getLogger("auth_jwt")
 
 
-def decode_jwt(token: str) -> dict | None:
+def decode_jwt(token: str) -> Optional[dict]:
     """
     this function decodes a JWT token
     and validates time and issuer/audience claims.

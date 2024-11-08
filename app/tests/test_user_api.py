@@ -24,7 +24,10 @@ class TestUsersAPI:
 
     @pytest.mark.parametrize("token, expected_status", [
         (
-                "Bearer MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyMmNpZCBjcmVhdGVkOjE3MzAxMjY1MjEuMDMwNzU4CjAwMTZjaWQgcmVnaXN0ZXI6VHJ1ZQowMDFhY2lkIHByb3ZpZGVyOm9wdHNjYWxlCjAwMmZzaWduYXR1cmUg4Ri0H_K4_xmY_fp8WvfIqZbzsrXK0P6I0KVTi8gRHkYK",
+                "Bearer MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ"
+                "1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyMmNpZCBjcmVhdGVkOjE3MzAxMjY1MjEuMDM"
+                "wNzU4CjAwMTZjaWQgcmVnaXN0ZXI6VHJ1ZQowMDFhY2lkIHByb3ZpZGVyOm9wdHNjYWxl"
+                "CjAwMmZzaWduYXR1cmUg4Ri0H_K4_xmY_fp8WvfIqZbzsrXK0P6I0KVTi8gRHkYK",
                 401),
         ("Bearer not_a_jwt_token", 401)
     ])

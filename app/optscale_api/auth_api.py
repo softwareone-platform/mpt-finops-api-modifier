@@ -22,7 +22,7 @@ class OptScaleAuth:
         return {"Secret": admin_api_key}
 
     @staticmethod
-    def _build_bearer_token_header(bearer_token: str) -> dict[str, str]:
+    def build_bearer_token_header(bearer_token: str) -> dict[str, str]:
         """
         Builds the headers with the Bearer token for user-level operations
         :param bearer_token: the Bearer token to use

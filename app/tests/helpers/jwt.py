@@ -1,4 +1,3 @@
-import pytest
 import jwt
 import time
 from app import settings

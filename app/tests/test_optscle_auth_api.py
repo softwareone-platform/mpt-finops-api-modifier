@@ -1,5 +1,3 @@
-from unittest.mock import AsyncMock
-
 import pytest
 from app.optscale_api.auth_api import OptScaleAuth
 
@@ -20,7 +18,10 @@ class TestOptscaleAuthAPI:
 
     async def test_user_auth_token_with_admin_api_key(self):
         mock_response = {
-            "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxNDA3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2lzdGVyOkZhbHNlCjAwMWFjaWQgcHJvdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI6eqCgqohlKYCzcKCchmHES38yC96nQo",
+            "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0y"
+                     "Nzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxNDA3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2l"
+                     "zdGVyOkZhbHNlCjAwMWFjaWQgcHJvdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI"
+                     "6eqCgqohlKYCzcKCchmHES38yC96nQo",
             "digest": "0a498f9f0aeadd67a59b93cbde528a45",
             "user_id": "f0bd0c4a-7c55-45b7-8b58-27740e38789a",
             "created_at": "2024-10-28T18:38:21",
@@ -47,7 +48,11 @@ class TestOptscaleAuthAPI:
 
     async def test_create_user_token(self):
         mock_response = {
-            "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxNDA3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2lzdGVyOkZhbHNlCjAwMWFjaWQgcHJvdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI6eqCgqohlKYCzcKCchmHES38yC96nQo",
+            "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LT"
+                     "Q1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxND"
+                     "A3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2lzdGVyOkZhbHNlCjAwMWFjaWQgcHJ"
+                     "vdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI6eqCgqohl"
+                     "KYCzcKCchmHES38yC96nQo",
             "digest": "0a498f9f0aeadd67a59b93cbde528a45",
             "user_id": "f0bd0c4a-7c55-45b7-8b58-27740e38789a",
             "created_at": "2024-10-28T18:38:21",
