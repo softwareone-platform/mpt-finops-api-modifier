@@ -4,9 +4,10 @@ from typing import Optional
 
 import jwt
 from app import settings
-from fastapi import Request, HTTPException
+from fastapi import Request, HTTPException, status as http_status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError, DecodeError
+from app.core.error_formats import create_error_response
 
 JWT_SECRET = settings.secret
 JWT_ALGORITHM = settings.algorithm
@@ -78,7 +79,7 @@ def verify_jwt(jw_token: str) -> bool:
 
 
 class JWTBearer(HTTPBearer):
-    def __init__(self, auto_error: bool = True):
+    def __init__(self, auto_error: bool = False):
         """
 
         :param auto_error: When auto_error=True, HTTPBearer will raise a 403 error
@@ -93,8 +94,15 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
         if credentials:
             if not verify_jwt(credentials.credentials):
-                raise HTTPException(status_code=401, detail="Invalid token or expired token.")
+                raise create_error_response(status_code=http_status.HTTP_401_UNAUTHORIZED,
+                                            title="Invalid token or expired token.",
+                                            errors={"reason": "The token is invalid or has expired."}
+                                            )
             return credentials.credentials
         else:
             # The authentication schema is not Bearer
-            raise HTTPException(status_code=401, detail="Invalid authorization scheme.")
+            raise create_error_response(
+                status_code=http_status.HTTP_401_UNAUTHORIZED,
+                title="Invalid authorization scheme.",
+                errors={"reason": "Invalid authorization scheme."}
+            )

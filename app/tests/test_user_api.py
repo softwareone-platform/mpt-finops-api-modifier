@@ -20,7 +20,10 @@ class TestUsersAPI:
     async def test_create_user_no_authentication(self, async_client: AsyncClient, test_data: dict):
         payload = test_data["user"]["case_create"]["payload"]
         response = await async_client.post("/users", json=payload)
-        assert response.status_code == 403, "Expected 403 when no authentication is provided"
+        assert response.status_code == 401, "Expected 401 when no authentication is provided"
+        got = response.json()
+        assert got.get("detail").get("errors").get("reason") == "Invalid authorization scheme."
+        assert "traceId" in got.get('detail')
 
     @pytest.mark.parametrize("token, expected_status", [
         (
@@ -100,8 +103,8 @@ class TestUsersAPI:
 
         # Verify the response status and content
         assert response.status_code == 403, "Expected 403 Forbidden when an exception occurs in user creation"
-        assert response.json() == {"detail": ""}, "Expected empty detail message in the exception response"
-
+        got = response.json()
+        assert got.get("detail").get("errors") == {"exception":"Test exception"}
         # Verify the log entry
         assert "Exception occurred during user creation: Test exception" in caplog.text, \
             "Expected error log message for the exception"

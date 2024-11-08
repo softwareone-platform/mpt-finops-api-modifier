@@ -160,7 +160,7 @@ class TestJWTBearer:
         with pytest.raises(HTTPException) as exc_info:
             await jwt_bearer(request)
         assert exc_info.value.status_code == 401
-        assert exc_info.value.detail == "Invalid authorization scheme."
+        assert exc_info.value.detail["title"] == "Invalid authorization scheme."
 
     async def test_invalid_token(self):
         invalid_token = "invalid.token.here"
@@ -169,7 +169,7 @@ class TestJWTBearer:
         with pytest.raises(HTTPException) as exc_info:
             await jwt_bearer(request)
         assert exc_info.value.status_code == 401
-        assert exc_info.value.detail == "Invalid token or expired token."
+        assert exc_info.value.detail["title"] == "Invalid token or expired token."
 
     async def test_missing_authorization(self):
         jwt_bearer = JWTBearer(auto_error=False)
@@ -177,4 +177,4 @@ class TestJWTBearer:
         with pytest.raises(HTTPException) as exc_info:
             await jwt_bearer(request)
         assert exc_info.value.status_code == 401
-        assert exc_info.value.detail == "Invalid authorization scheme."
+        assert exc_info.value.detail["title"] == "Invalid authorization scheme."
