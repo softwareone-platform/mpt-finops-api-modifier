@@ -1,5 +1,8 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10-slim
+FROM python:3.12.2-bookworm
+ENV PYTHONUNBUFFERED=1 POETRY_VERSION=1.7.0
+
+RUN pip3 install poetry==$POETRY_VERSION
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -10,19 +13,13 @@ ENV PYTHONUNBUFFERED=1 \
 # Set the working directory
 WORKDIR /app
 
-# Install system dependencies and Poetry
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc curl && \
-    curl -sSL https://install.python-poetry.org | python3 - && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
 # Add Poetry to PATH
 ENV PATH="/root/.local/bin:$PATH"
 
 # Copy Poetry files and install dependencies
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-root --no-interaction --no-ansi
+#RUN poetry install --no-root --no-interaction --no-ansi
+RUN poetry update && poetry install --with dev
 
 # Copy the rest of the application code and tests into the container
 COPY . /app
