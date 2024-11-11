@@ -1,7 +1,9 @@
-import pytest
-from unittest.mock import AsyncMock
-from app.optscale_api.users_api import OptScaleUserAPI
 import logging
+from unittest.mock import AsyncMock
+
+import pytest
+
+from app.optscale_api.users_api import OptScaleUserAPI
 
 USER_ID = "f0bd0c4a-7c55-45b7-8b58-27740e38789a"
 INVALID_USER_ID = "f0bd0c4a-7c55-45b7-8b58-27740e38789k"
@@ -51,7 +53,8 @@ class TestOptscaleAPI:
         }
         mock_post.return_value = mock_response
 
-        result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME, password=PASSWORD)
+        result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME,
+                                                password=PASSWORD)
 
         mock_post.assert_called_once_with(
             endpoint="/auth/v2/users",
@@ -70,7 +73,8 @@ class TestOptscaleAPI:
         }
         mock_post.return_value = mock_response
 
-        result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME, password=PASSWORD)
+        result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME,
+                                                password=PASSWORD)
 
         mock_post.assert_called_once_with(
             endpoint="/auth/v2/users",
@@ -83,7 +87,8 @@ class TestOptscaleAPI:
         mock_post.side_effect = Exception("Test exception")
 
         with caplog.at_level(logging.ERROR):
-            result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME, password=PASSWORD)
+            result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME,
+                                                    password=PASSWORD)
 
         # Verify the response is None when an exception is raised
         assert result is None, "Expected None when an exception occurs during user creation"
@@ -91,11 +96,12 @@ class TestOptscaleAPI:
         assert "Exception occurred creating a user: Test exception" in caplog.text, \
             "Expected error log for the exception in user creation"
 
-    @pytest.mark.parametrize("user_id, expected_status, expected_reason", [
+    @pytest.mark.parametrize("user_id, expected_status, expected_reason", [  # noqa: PT006
         (USER_ID, 200, None),
         (INVALID_USER_ID, 404, "User with id f0bd0c4a-7c55-45b7-8b58-27740e38789k not found")
     ])
-    async def test_get_user_by_id(self, optscale_api, mock_get, user_id, expected_status, expected_reason):
+    async def test_get_user_by_id(self, optscale_api, mock_get, user_id, expected_status,
+                                  expected_reason):
         if expected_status == 200:
             mock_response = {
                 "created_at": 1730126521,
@@ -129,7 +135,8 @@ class TestOptscaleAPI:
             endpoint=f"/auth/v2/users/{user_id}",
             headers={"Secret": ADMIN_API_KEY}
         )
-        assert result == mock_response, f"Expected response for user_id={user_id} with status {expected_status}"
+        assert result == mock_response, (f"Expected response for user_id={user_id} "
+                                         f"with status {expected_status}")
 
     async def test_get_user_with_invalid_admin_api_key(self, optscale_api, mock_get):
         mock_response = {

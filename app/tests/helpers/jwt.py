@@ -1,5 +1,7 @@
-import jwt
 import time
+
+import jwt
+
 from app import settings
 
 JWT_SECRET = settings.secret

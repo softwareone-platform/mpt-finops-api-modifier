@@ -1,4 +1,5 @@
 import pytest
+
 from app.optscale_api.auth_api import OptScaleAuth
 
 
@@ -14,7 +15,8 @@ class TestOptscaleAuthAPI:
         self.mock_post = mocker.patch.object(self.opt_scale_auth.api_client, 'post')
 
         self.mock_get = mocker.patch.object(self.opt_scale_auth.api_client, 'get')
-        self.opt_scale_auth.build_admin_api_key_header.return_value = {"Secret": "f2312f2b-46h0-4456-o0i9-58e64f2j6725"}
+        self.opt_scale_auth.build_admin_api_key_header.return_value = \
+            {"Secret": "f2312f2b-46h0-4456-o0i9-58e64f2j6725"}
 
     async def test_user_auth_token_with_admin_api_key(self):
         mock_response = {

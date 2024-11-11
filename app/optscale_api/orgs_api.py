@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
+
+from app import settings
 from app.core.api_client import APIClient
 from app.core.inout_validation import validate_currency
-from app import settings
 
 from .auth_api import OptScaleAuth
 
@@ -57,7 +58,8 @@ class OptScaleOrgAPI:
             return None
 
     @validate_currency
-    async def create_user_org(self, org_name: str, currency: str, user_id: str, admin_api_key: str) -> dict | None:
+    async def create_user_org(self, org_name: str, currency: str, user_id: str,
+                              admin_api_key: str) -> dict | None:
         """
         Creates a new organization for a given user
 

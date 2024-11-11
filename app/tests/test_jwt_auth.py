@@ -1,9 +1,11 @@
-import pytest
-import jwt
 import time
-from app import settings
-from app.core.auth_jwt_bearer import decode_jwt, verify_jwt, JWTBearer
+
+import jwt
+import pytest
 from fastapi import HTTPException
+
+from app import settings
+from app.core.auth_jwt_bearer import JWTBearer, decode_jwt, verify_jwt
 
 JWT_SECRET = settings.secret
 JWT_ALGORITHM = settings.algorithm

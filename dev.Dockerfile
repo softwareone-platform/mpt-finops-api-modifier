@@ -26,5 +26,5 @@ COPY . /app
 # Set environment variable for locating test data in conftest.py
 ENV PYTEST_CURRENT_TEST=/app/tests
 
-# Run tests using Poetry to handle the virtual environment
-CMD ["poetry", "run", "pytest", "--disable-warnings", "-v"]
+# Run the service using Poetry to handle the virtual environment
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

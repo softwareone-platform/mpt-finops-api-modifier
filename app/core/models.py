@@ -1,5 +1,6 @@
 import uuid as uuid_pkg
 from datetime import datetime
+
 from sqlalchemy import text
 from sqlmodel import Field, SQLModel
 

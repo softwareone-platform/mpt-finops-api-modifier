@@ -1,8 +1,9 @@
+import logging
 from unittest.mock import AsyncMock
 
 import pytest
+
 from app.optscale_api.orgs_api import OptScaleOrgAPI
-import logging
 
 ORG_RESPONSE = {
     "deleted_at": 0,
@@ -35,14 +36,16 @@ def mock_get(mocker, optscale_api):
 
 @pytest.fixture
 def mock_auth_token(mocker, optscale_api):
-    mock_auth_token = mocker.patch.object(optscale_api.auth_client, 'obtain_user_auth_token_with_admin_api_key',
+    mock_auth_token = mocker.patch.object(optscale_api.auth_client,
+                                          'obtain_user_auth_token_with_admin_api_key',
                                           return_value="good token")
     return mock_auth_token
 
 
 @pytest.fixture
-def mock_invalid_auth_token(mocker, optscale_api):
-    mock_auth_token = mocker.patch.object(optscale_api.auth_client, 'obtain_user_auth_token_with_admin_api_key',
+def mock_invalid_auth_token(mocker, optscale_api, mock_auth_token):
+    mock_auth_token = mocker.patch.object(optscale_api.auth_client,
+                                          'obtain_user_auth_token_with_admin_api_key',
                                           return_value=None)
     return mock_auth_token
 
@@ -69,7 +72,8 @@ class TestOptscaleOrgAPI:
             headers={"Authorization": "Bearer good token"}
         )
 
-    async def test_create_user_org_with_invalid_currency(self, caplog, optscale_api, mock_post, mock_auth_token):
+    async def test_create_user_org_with_invalid_currency(self, caplog, optscale_api, mock_post,
+                                                         mock_auth_token):
         with caplog.at_level(logging.ERROR):
             result = await optscale_api.create_user_org(org_name="Test Org",
                                                         currency="not valid currency",
@@ -77,9 +81,11 @@ class TestOptscaleOrgAPI:
                                                         admin_api_key="test_key")
 
             assert result is None, "Expected None for invalid currency"
-            assert "Invalid currency: not valid currency" in caplog.text, "Expected error message for invalid currency"
+            assert "Invalid currency: not valid currency" in caplog.text, ("Expected error message "
+                                                                           "for invalid currency")
 
-    async def test_get_user_org_with_no_token(self, optscale_api, mock_post, mock_invalid_auth_token):
+    async def test_get_user_org_with_no_token(self, optscale_api, mock_post,
+                                              mock_invalid_auth_token):
         result = await optscale_api.create_user_org(org_name="MyOrg",
                                                     currency="USD",
                                                     user_id="test_user",

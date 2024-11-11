@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 import logging
-from app.core.api_client import APIClient
+
 from app import settings
+from app.core.api_client import APIClient
 
 AUTH_TOKEN_ENDPOINT = "/auth/v2/token"
 logger = logging.getLogger("optscale_auth_api")
@@ -57,14 +59,16 @@ class OptScaleAuth:
             logger.error(f"Error obtaining auth token with user credentials: {error}")
         return None
 
-    async def obtain_user_auth_token_with_admin_api_key(self, user_id: str, admin_api_key: str) -> str | None:
+    async def obtain_user_auth_token_with_admin_api_key(self, user_id: str,
+                                                        admin_api_key: str) -> str | None:
         """
         Obtains an authentication token for the given user_id using the admin API key
         :param user_id: the user's ID for whom the access token will be generated
         :type user_id: string
         :param admin_api_key: the secret API key
         :type admin_api_key: string
-        :return: The user authentication token if successfully obtained and verified, otherwise None.
+        :return: The user authentication token if successfully obtained and verified, o
+        therwise None.
 
         """
         payload = {"user_id": user_id}
@@ -78,7 +82,8 @@ class OptScaleAuth:
                 logger.error("Empty response when getting the user auth token with admin API key.")
                 return None
             if response.get("user_id") != user_id:
-                logger.error(f"User ID mismatch: requested {user_id}, received {response.get('user_id')}")
+                logger.error(f"User ID mismatch: requested {user_id}, "
+                             f"received {response.get('user_id')}")
                 return None
             token = response.get("token")
             if token is not None:

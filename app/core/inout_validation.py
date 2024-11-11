@@ -1,5 +1,6 @@
 import functools
 import logging
+
 from currency_codes.exceptions import CurrencyNotFoundError
 from currency_codes.main import get_currency_by_code
 

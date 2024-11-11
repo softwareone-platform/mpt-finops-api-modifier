@@ -1,5 +1,6 @@
 import uuid
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 from fastapi import HTTPException
 
 # Mapping of HTTP status codes to type URLs
@@ -36,7 +37,8 @@ def create_error_response(
     :return: JSONResponse with the standardized error structure.
     """
     type_url = STATUS_TYPE_URLS.get(status_code, DEFAULT_TYPE_URL)  # 400
-    trace_id = uuid.uuid4().hex  # The unique  ID to trace the error todo: check for a specific format for this traceID
+    trace_id = uuid.uuid4().hex  # The unique  ID to trace the error
+    # todo: check for a specific format for this traceID
 
     # Validate and serialize the `errors` field
     if errors is not None:

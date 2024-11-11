@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import httpx
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
+import httpx
 from httpx import Response
 
 from app import settings
@@ -21,10 +21,11 @@ class APIClient:
                                         verify=False)  # todo: check this verify
 
     async def _make_request(
-            self, method: str, endpoint: str, headers: Optional[Dict[str, Any]] = None,
-            params: Optional[Dict[str, Any]] = None,
-            data: Optional[Dict[str, Any]] = None
-    ) -> Response | dict[str, None | str | int] | dict[str, str | int | Any] | dict[str, None | str | int]:
+            self, method: str, endpoint: str, headers: dict[str, Any] | None = None,
+            params: dict[str, Any] | None = None,
+            data: dict[str, Any] | None = None
+    ) -> Response | dict[str, None | str | int] | dict[str, str | int | Any] | dict[str, None |
+                                                                                         str | int]:
         """
         This function makes an async HTTP request and handles errors.
         :param method:
@@ -53,8 +54,10 @@ class APIClient:
                     data = response.json()
                     return {"status_code": response.status_code, "data": data}
                 except ValueError:
-                    logger.error("Failed to parse JSON despite Content-Type header indicating JSON.")
-                    return {"status_code": response.status_code, "error": "Invalid JSON format in response"}
+                    logger.error("Failed to parse JSON "
+                                 "despite Content-Type header indicating JSON.")
+                    return {"status_code": response.status_code,
+                            "error": "Invalid JSON format in response"}
             else:
                 # Handle non-JSON response
                 logger.warning("Response is not JSON as indicated by Content-Type header.")
@@ -62,7 +65,8 @@ class APIClient:
 
         except httpx.RequestError as error:
             # Log and handle connection-related errors
-            logger.error(f"An error occurred while requesting {error.request.url!r}. Error: {str(error)}")
+            logger.error(f"An error occurred while "
+                         f"requesting {error.request.url!r}. Error: {str(error)}")
             return {
                 "status_code": 503,  # Service Unavailable
                 "data": None,
@@ -70,7 +74,8 @@ class APIClient:
             }
         except httpx.HTTPStatusError as error:
             # Log and handle HTTP errors (non-2xx responses)
-            logger.error(f"Error response {error.response.status_code} while requesting {error.request.url!r}.")
+            logger.error(f"Error response {error.response.status_code} "
+                         f"while requesting {error.request.url!r}.")
             return {
                 "status_code": error.response.status_code,
                 "data": error.response.json(),
@@ -85,28 +90,28 @@ class APIClient:
                 "error": f"Unexpected error: {str(error)}"
             }
 
-    async def get(self, endpoint: str, headers: Optional[Dict[str, Any]] = None,
-                  params: Optional[Dict[str, Any]] = None) -> Any:
+    async def get(self, endpoint: str, headers: dict[str, Any] | None = None,
+                  params: dict[str, Any] | None = None) -> Any:
         response = await self._make_request("GET", endpoint, params=params, headers=headers)
         return response
 
-    async def post(self, endpoint: str, headers: Optional[Dict[str, Any]] = None,
-                   data: Optional[Dict[str, Any]] = None) -> Any:
+    async def post(self, endpoint: str, headers: dict[str, Any] | None = None,
+                   data: dict[str, Any] | None = None) -> Any:
         response = await self._make_request("POST", endpoint, data=data, headers=headers)
         return response
 
-    async def put(self, endpoint: str, headers: Optional[Dict[str, Any]] = None,
-                  data: Optional[Dict[str, Any]] = None) -> Any:
+    async def put(self, endpoint: str, headers: dict[str, Any] | None = None,
+                  data: dict[str, Any] | None = None) -> Any:
         response = await self._make_request("PUT", endpoint, data=data, headers=headers)
         return response
 
-    async def patch(self, endpoint: str, headers: Optional[Dict[str, Any]] = None,
-                    data: Optional[Dict[str, Any]] = None) -> Any:
+    async def patch(self, endpoint: str, headers: dict[str, Any] | None = None,
+                    data: dict[str, Any] | None = None) -> Any:
         response = await self._make_request("PATCH", endpoint, data=data, headers=headers)
         return response
 
-    async def delete(self, endpoint: str, headers: Optional[Dict[str, Any]] = None,
-                     params: Optional[Dict[str, Any]] = None) -> Any:
+    async def delete(self, endpoint: str, headers: dict[str, Any] | None = None,
+                     params: dict[str, Any] | None = None) -> Any:
         response = await self._make_request("DELETE", endpoint, params=params, headers=headers)
         return response
 

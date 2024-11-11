@@ -1,12 +1,14 @@
-import time
 import logging
+import time
 from typing import Optional
 
 import jwt
+from fastapi import Request
+from fastapi import status as http_status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jwt.exceptions import DecodeError, ExpiredSignatureError, InvalidTokenError
+
 from app import settings
-from fastapi import Request, HTTPException, status as http_status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jwt.exceptions import InvalidTokenError, ExpiredSignatureError, DecodeError
 from app.core.error_formats import create_error_response
 
 JWT_SECRET = settings.secret
@@ -88,15 +90,16 @@ class JWTBearer(HTTPBearer):
 
         :type auto_error: bool
         """
-        super(JWTBearer, self).__init__(auto_error=auto_error)
+        super().__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+        credentials: HTTPAuthorizationCredentials = await super().__call__(request)
         if credentials:
             if not verify_jwt(credentials.credentials):
                 raise create_error_response(status_code=http_status.HTTP_401_UNAUTHORIZED,
                                             title="Invalid token or expired token.",
-                                            errors={"reason": "The token is invalid or has expired."}
+                                            errors={"reason":
+                                                        "The token is invalid or has expired."}
                                             )
             return credentials.credentials
         else:

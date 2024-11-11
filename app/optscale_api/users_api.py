@@ -1,7 +1,10 @@
 from __future__ import annotations
+
 import logging
-from app.core.api_client import APIClient
+
 from app import settings
+from app.core.api_client import APIClient
+
 from .auth_api import OptScaleAuth
 
 AUTH_USERS_ENDPOINT = "/auth/v2/users"
@@ -14,7 +17,8 @@ class OptScaleUserAPI:
         self._auth_client = OptScaleAuth()
 
     # todo: check the password lenght and strength
-    async def create_user(self, email: str, display_name: str, password: str) -> dict[str, str] | None:
+    async def create_user(self, email: str, display_name: str, password: str) -> (
+            dict[str, str] | None):
         """
         Creates a new user in the system.
 
@@ -75,5 +79,6 @@ class OptScaleUserAPI:
                 logger.info(f"No data returned for the user {user_id}")
             return response
         except Exception as error:
-            logger.error(f"Exception occurred getting the information for the user: {user_id} - {error}")
+            logger.error(f"Exception occurred getting the information for the user: "
+                         f"{user_id} - {error}")
             return None

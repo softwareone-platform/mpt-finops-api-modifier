@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "optscale-api-modifier"
 version = "0.1.0"
-description = ""
-authors = ["Antonio Di Mariano <antonio.dimariano@gmail.com>"]
+description = "Optscale API Modifier for SWO FinOps"
+authors = ["SoftwareOne"]
+license = "Apache-2.0 license"
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -28,26 +29,17 @@ exceptiongroup = "^1.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
-#freezegun = "1.4.*"
-#ipdb = "0.13.*"
-#mypy = "1.8.*"
+ipdb = "0.13.*"
+mypy = "1.8.*"
 poetry-plugin-sort = "0.2.*"
 pre-commit = "3.6.*"
-
 pytest = "^8.3.3"
 pytest-asyncio = "^0.24.0"
 pytest-mock = "^3.14.0"
 pytest-cov = "^6.0.0"
-
-#pytest-cov = "4.1.*"
-#pytest-deadfixtures = "2.2.*"
-#pytest-django = "4.7.*"
-#pytest-mock = "3.12.*"
-#pytest-randomly = "3.15.*"
-#pytest-xdist = "3.5.*"
-#responses = "0.24.*"
+pytest-deadfixtures = "2.2.*"
+pytest-xdist = "3.5.*"
 ruff = "0.3.*"
-#types-requests = "2.31.*"
 
 [build-system]
 requires = ["poetry-core"]
@@ -56,7 +48,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 testpaths = "tests"
 pythonpath = "."
-python_files = "tests.py test_*.py *_tests.py"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 
@@ -64,7 +55,7 @@ asyncio_default_fixture_loop_scope = "session"
 branch = true
 
 [tool.ruff]
-extend-exclude = [".vscode", ".devcontainer", "swo"]
+extend-exclude = [".devcontainer"]
 output-format = "full"
 
 [tool.ruff.lint]
@@ -81,14 +72,16 @@ select = [
     "T10",  # flake8-pytest-style
 ]
 ignore = [
+    "PT001", # Use `@pytest.fixture()` over `@pytest.fixture`
     "PT004", # fixture '{name}' does not return anything, add leading underscore
     "PT011", # pytest.raises({exception}) is too broad, set the match parameter or use a more specific exception
+    "PT023", # @pytest.mark.parametrize` is missing required arguments
     "B008",  # do not perform function calls in argument defaults
     "B904",  # Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
 ]
 
-[tool.ruff.lint.isort]
-known-third-party = ["swo"]
-
 [tool.ruff.lint.pycodestyle]
 max-line-length = 100
+
+[tool.mypy]
+warn_no_return = false
