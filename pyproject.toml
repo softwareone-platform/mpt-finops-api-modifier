@@ -1,49 +1,47 @@
-[tool.poetry]
+[project]
 name = "optscale-api-modifier"
 version = "0.1.0"
 description = "Optscale API Modifier for SWO FinOps"
-authors = ["SoftwareOne"]
+authors = [
+    {name = "SoftwareOne"},
+]
 license = "Apache-2.0 license"
 readme = "README.md"
+requires-python = ">=3.12,<4"
+dependencies = [
+    "fastapi<1.0.0,>=0.115.3",
+    "python-dotenv<2.0.0,>=1.0.1",
+    "httpx<1.0.0,>=0.27.2",
+    "pydantic-settings<3.0.0,>=2.6.0",
+    "uvicorn<1.0.0,>=0.32.0",
+    "python-json-logger<3.0.0,>=2.0.7",
+    "pyjwt<3.0.0,>=2.9.0",
+    "python-decouple<4.0,>=3.8",
+    "setuptools<76.0.0,>=75.2.0",
+    "cython<4.0.0,>=3.0.11",
+    "pydevd<4.0.0,>=3.2.2",
+    "wheel<1.0.0,>=0.44.0",
+    "sqlmodel<1.0.0,>=0.0.22",
+    "currency-codes<24.0.0,>=23.6.4",
+    "pydantic[email]<3.0.0,>=2.9.2",
+    "greenlet<4.0.0,>=3.1.1",
+    "exceptiongroup<2.0.0,>=1.1.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.12,<4"
-fastapi = "^0.115.3"
-python-dotenv = "^1.0.1"
-httpx = "^0.27.2"
-pydantic-settings = "^2.6.0"
-uvicorn = "^0.32.0"
-python-json-logger = "^2.0.7"
-pyjwt = "^2.9.0"
-python-decouple = "^3.8"
-setuptools = "^75.2.0"
-cython = "^3.0.11"
-pydevd = "^3.2.2"
-wheel = "^0.44.0"
+[tool.uv]
+dev-dependencies = [
+    "ipdb>=0.13",
+    "mypy>=1.8",
+    "pre-commit>=3.6",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "pytest-cov>=6.0.0",
+    "pytest-deadfixtures>=2.2",
+    "pytest-xdist>=3.5",
+    "ruff>=0.3",
+]
 
-sqlmodel = "^0.0.22"
-currency-codes = "^23.6.4"
-pydantic = {extras = ["email"], version = "^2.9.2"}
-greenlet = "^3.1.1"
-exceptiongroup = "^1.1.0"
-
-
-[tool.poetry.group.dev.dependencies]
-ipdb = "0.13.*"
-mypy = "1.8.*"
-poetry-plugin-sort = "0.2.*"
-pre-commit = "3.6.*"
-pytest = "^8.3.3"
-pytest-asyncio = "^0.24.0"
-pytest-mock = "^3.14.0"
-pytest-cov = "^6.0.0"
-pytest-deadfixtures = "2.2.*"
-pytest-xdist = "3.5.*"
-ruff = "0.3.*"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = "tests"
