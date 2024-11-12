@@ -1,30 +1,35 @@
-# Use an official Python runtime as a parent image
-FROM python:3.12.2-bookworm
-ENV PYTHONUNBUFFERED=1 POETRY_VERSION=1.7.0
+# NOTE: Based on astral-sh example Dockerfile for uv-based projects:
+#       https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
 
-RUN pip3 install poetry==$POETRY_VERSION
+# Use a Python image with uv pre-installed
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_VERSION=1.4.2 \
-    DEBIAN_FRONTEND=noninteractive
-
-# Set the working directory
+# Install the project into `/app`
 WORKDIR /app
 
-# Add Poetry to PATH
-ENV PATH="/root/.local/bin:$PATH"
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
 
-# Copy Poetry files and install dependencies
-COPY pyproject.toml poetry.lock ./
-RUN poetry update && poetry install --with dev
+# Copy from the cache instead of linking since it's a mounted volume
+ENV UV_LINK_MODE=copy
 
-# Copy the rest of the application code and tests into the container
-COPY . /app
+# Install the project's dependencies using the lockfile and settings
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project --no-dev
 
-# Set environment variable for locating test data in conftest.py
-ENV PYTEST_CURRENT_TEST=/app/tests
+# Then, add the rest of the project source code and install it
+# Installing separately from its dependencies allows optimal layer caching
+ADD . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
 
-# Run the service using Poetry to handle the virtual environment
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Place executables in the environment at the front of the path
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Reset the entrypoint, don't invoke `uv`
+ENTRYPOINT []
+
+# Run the service using using uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
