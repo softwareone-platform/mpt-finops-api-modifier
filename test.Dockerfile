@@ -1,8 +1,19 @@
 # NOTE: Based on astral-sh example Dockerfile for uv-based projects:
 #       https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
 
-# Use a Python image with uv pre-installed
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM python:3.12-slim-bookworm
+
+# The uv installer requires curl (and certificates) to download the release archive
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+
+# Run the uv installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
 
 # Install the project into `/app`
 WORKDIR /app
