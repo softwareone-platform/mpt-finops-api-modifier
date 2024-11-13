@@ -21,14 +21,15 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: 'Create environment file'
-      run: touch .env
+    - name: Debug test environment file
+      run: cat .env.test
+
 
     - name: 'Build test containers'
       run: docker compose build app_test
 
     - name: 'Run validation & test'
-      run: docker compose run --service-ports app_test
+      run: docker compose run --service-ports -v $(pwd)/.env.test:/app/.env.test app_test
 
     - name: 'Stop containers'
       if: always()

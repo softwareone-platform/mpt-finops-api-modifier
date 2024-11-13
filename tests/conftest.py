@@ -16,6 +16,9 @@ from app.main import app
 def mock_jwt_bearer():
     return True  # Mocking successful authentication
 
+def pytest_configure():
+    # Override settings with defaults for testing
+    settings.Settings.Config.env_file = ".env.test"
 
 # Override JWTBearer dependency for all tests
 @pytest.fixture(scope="session", autouse=True)
