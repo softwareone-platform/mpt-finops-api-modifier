@@ -9,7 +9,9 @@ license = "Apache-2.0 license"
 readme = "README.md"
 requires-python = ">=3.12,<4"
 dependencies = [
-    "fastapi<1.0.0,>=0.115.3",
+    "fastapi>=0.100.0,<1.0.0", # Fully compatible with Pydantic v2
+    "sqlmodel>=0.0.8,<1.0.0", # Supports Pydantic v2
+    "pydantic[email]>=2.9.2,<3.0.0",
     "python-dotenv<2.0.0,>=1.0.1",
     "httpx<1.0.0,>=0.27.2",
     "pydantic-settings<3.0.0,>=2.6.0",
@@ -19,9 +21,8 @@ dependencies = [
     "python-decouple<4.0,>=3.8",
     "setuptools<76.0.0,>=75.2.0",
     "pydevd<4.0.0,>=3.2.2",
-    "sqlmodel<1.0.0,>=0.0.22",
     "currency-codes<24.0.0,>=23.6.4",
-    "pydantic[email]<3.0.0,>=2.9.2",
+    "pytest>=8.3.3",
 ]
 
 [tool.uv]
