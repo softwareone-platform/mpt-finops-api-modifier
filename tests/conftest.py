@@ -46,7 +46,7 @@ def test_data() -> dict:
     path = os.getenv("PYTEST_CURRENT_TEST")
     path = os.path.join(*os.path.split(path)[:-1], "data.json")
     if not os.path.exists(path):
-        path = os.path.join("app/tests/data", "data.json")
+        path = os.path.join("tests/data", "data.json")
 
     with open(path) as file:
         data = json.loads(file.read())
