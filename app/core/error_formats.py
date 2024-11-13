@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import HTTPException
 
@@ -24,7 +26,7 @@ DEFAULT_TYPE_URL = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4"
 def create_error_response(
         status_code: int,
         title: str,
-        errors: Optional[Dict[str, Any]] = None
+        errors: dict[str, Any] | None = None
 ) -> HTTPException:
     """
     Creates a standardized error response.

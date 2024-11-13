@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import logging
 import time
-from typing import Optional
 
 import jwt
 from fastapi import Request
@@ -19,7 +20,7 @@ JWT_ISSUER = settings.issuer
 logger = logging.getLogger("auth_jwt")
 
 
-def decode_jwt(token: str) -> Optional[dict]:
+def decode_jwt(token: str) -> dict | None:
     """
     this function decodes a JWT token
     and validates time and issuer/audience claims.
