@@ -44,6 +44,7 @@ ENV PYTEST_CURRENT_TEST=/app/tests
 
 # Reset the entrypoint, don't invoke `uv`
 ENTRYPOINT []
-
-# Run tests using pytest
-CMD ["pytest", "--disable-warnings", "-v"]
+COPY ./run_tests.sh /
+RUN chmod +x /run_tests.sh
+#run tests
+ENTRYPOINT ["/run_tests.sh"]
