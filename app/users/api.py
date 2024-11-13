@@ -22,6 +22,9 @@ async def create_user(
         data: CreateUserData,
         user_api: OptScaleUserAPI = Depends()
 ):
+    """
+    Create the first FinOps user
+    """
     try:
         response = await user_api.create_user(email=data.email,
                                               display_name=data.display_name,
