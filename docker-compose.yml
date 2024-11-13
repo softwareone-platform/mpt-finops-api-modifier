@@ -36,6 +36,7 @@ services:
     volumes:
       - .:/app
       - venv:/app/.venv
+      - .env.test:/app/.env.test
     env_file:
       - .env
 

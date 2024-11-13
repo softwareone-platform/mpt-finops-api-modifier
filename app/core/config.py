@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # Base
     api_v1_prefix: str
+    public_url: str
     debug: bool
     project_name: str
     version: str
@@ -19,4 +20,4 @@ class Settings(BaseSettings):
     db_async_connection_str: str
     db_async_test_connection_str: str
     class Config:
-        env_file = "/.env.test"
+        env_file = "/app/.env.test"
