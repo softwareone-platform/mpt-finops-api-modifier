@@ -8,7 +8,7 @@ from app.core.error_formats import (
 )
 
 
-@pytest.mark.parametrize("status_code, title, errors, expected_type", [  # noqa: PT006
+@pytest.mark.parametrize("status_code, title, errors, expected_type", [
     (400, "Validation Error", {"field": ["Invalid value"]}, STATUS_TYPE_URLS[400]),
     (401, "Unauthorized", None, STATUS_TYPE_URLS[401]),
     (403, "Forbidden", {"resource": ["Access denied"]}, STATUS_TYPE_URLS[403]),
@@ -28,8 +28,7 @@ def test_create_error_response_valid(status_code, title, errors, expected_type):
     assert detail["type"] == expected_type
     assert detail["title"] == title
     assert detail["status"] == status_code
-    assert ("traceId" in detail)
-    assert (isinstance(detail["traceId"], str))
+    assert "traceId" in detail and isinstance(detail["traceId"], str)
     assert detail["errors"] == (errors or {})
 
 
