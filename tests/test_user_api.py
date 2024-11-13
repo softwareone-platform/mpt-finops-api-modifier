@@ -5,7 +5,7 @@ import pytest
 from httpx import AsyncClient
 
 from app.optscale_api.users_api import OptScaleUserAPI
-from app.tests.helpers.jwt import create_jwt_token
+from tests.helpers.jwt import create_jwt_token
 
 
 @pytest.fixture
@@ -15,19 +15,15 @@ def mock_create_user():
     yield mock
     patcher.stop()
 
+async def test_create_user_no_authentication( async_client: AsyncClient, test_data: dict):
+    payload = test_data["user"]["case_create"]["payload"]
+    response = await async_client.post("/users", json=payload)
+    assert response.status_code == 401, "Expected 401 when no authentication is provided"
+    got = response.json()
+    assert got.get("detail").get("errors").get("reason") == "Invalid authorization scheme."
+    assert "traceId" in got.get('detail')
 
-@pytest.mark.asyncio
-class TestUsersAPI:
-
-    async def test_create_user_no_authentication(self, async_client: AsyncClient, test_data: dict):
-        payload = test_data["user"]["case_create"]["payload"]
-        response = await async_client.post("/users", json=payload)
-        assert response.status_code == 401, "Expected 401 when no authentication is provided"
-        got = response.json()
-        assert got.get("detail").get("errors").get("reason") == "Invalid authorization scheme."
-        assert "traceId" in got.get('detail')
-
-    @pytest.mark.parametrize("token, expected_status", [  # noqa: PT006
+@pytest.mark.parametrize("token, expected_status", [  # noqa: PT006
         (
                 "Bearer MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ"
                 "1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyMmNpZCBjcmVhdGVkOjE3MzAxMjY1MjEuMDM"
@@ -36,7 +32,7 @@ class TestUsersAPI:
                 401),
         ("Bearer not_a_jwt_token", 401)
     ])
-    async def test_create_user_with_invalid_token(self, async_client: AsyncClient, test_data: dict,
+async def test_create_user_with_invalid_token(async_client: AsyncClient, test_data: dict,
                                                   token,expected_status):
         payload = test_data["user"]["case_create"]["payload"]
         response = await async_client.post(
@@ -47,7 +43,7 @@ class TestUsersAPI:
         assert response.status_code == expected_status, (f"Expected {expected_status} "
                                                          f"for token: {token}")
 
-    async def test_create_user_with_valid_authentication(self, async_client: AsyncClient,
+async def test_create_user_with_valid_authentication(async_client: AsyncClient,
                                                          test_data: dict,
                                                          mock_create_user):
         payload = test_data["user"]["case_create"]["payload"]
@@ -88,7 +84,7 @@ class TestUsersAPI:
         for k, v in want.items():
             assert got[k] == v, f"Mismatch in response for key '{k}': expected {v}, got {got[k]}"
 
-    async def test_create_user_exception_handling(self, async_client: AsyncClient, test_data: dict,
+async def test_create_user_exception_handling(async_client: AsyncClient, test_data: dict,
                                                   mock_create_user,
                                                   caplog):
         # Simulate an exception in `create_user`

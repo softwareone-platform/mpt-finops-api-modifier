@@ -47,9 +47,12 @@ class APIClient:
                 params=params,
                 json=data
             )
-            response.raise_for_status()
+
+
+            content_type = response.headers.get("Content-Type", "")
             # Check if the response is JSON by inspecting the Content-Type header
-            if response.headers.get("Content-Type") == "application/json":
+            response.raise_for_status()
+            if "application/json" in content_type:
                 try:
                     data = response.json()
                     return {"status_code": response.status_code, "data": data}

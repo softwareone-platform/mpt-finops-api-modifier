@@ -1,6 +1,23 @@
+from unittest.mock import AsyncMock
+
 import pytest
 
 from app.optscale_api.auth_api import OptScaleAuth
+
+
+@pytest.fixture
+def opt_scale_auth():
+    return OptScaleAuth()
+
+@pytest.fixture
+def mock_post(mocker, opt_scale_auth):
+    mock_post = mocker.patch.object(opt_scale_auth.api_client, 'post', new=AsyncMock())
+    return mock_post
+
+@pytest.fixture
+def mock_get(mocker, opt_scale_auth):
+    mock_get = mocker.patch.object(opt_scale_auth.api_client, 'get', new=AsyncMock())
+    return mock_get
 
 
 @pytest.mark.asyncio(loop_scope="session")

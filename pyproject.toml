@@ -16,17 +16,11 @@ uvicorn = "^0.32.0"
 python-json-logger = "^2.0.7"
 pyjwt = "^2.9.0"
 python-decouple = "^3.8"
-setuptools = "^75.2.0"
-cython = "^3.0.11"
 pydevd = "^3.2.2"
-wheel = "^0.44.0"
 
 sqlmodel = "^0.0.22"
 currency-codes = "^23.6.4"
 pydantic = {extras = ["email"], version = "^2.9.2"}
-greenlet = "^3.1.1"
-exceptiongroup = "^1.1.0"
-
 
 [tool.poetry.group.dev.dependencies]
 ipdb = "0.13.*"
@@ -38,7 +32,6 @@ pytest-asyncio = "^0.24.0"
 pytest-mock = "^3.14.0"
 pytest-cov = "^6.0.0"
 pytest-deadfixtures = "2.2.*"
-pytest-xdist = "3.5.*"
 ruff = "0.3.*"
 
 [build-system]
