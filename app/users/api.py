@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from app.core.auth_jwt_bearer import JWTBearer
 from app.core.error_formats import create_error_response
 from app.optscale_api.users_api import OptScaleUserAPI
-from app.users.model import CreateUserData
+from app.users.model import CreateUserData, CreateUserResponse
 
 logger = logging.getLogger("api.users")
 router = APIRouter()
@@ -16,6 +16,7 @@ router = APIRouter()
 @router.post(
     path="",
     status_code=http_status.HTTP_201_CREATED,
+    response_model=CreateUserResponse,
     dependencies=[Depends(JWTBearer())]
 )
 async def create_user(
@@ -23,6 +24,8 @@ async def create_user(
         user_api: OptScaleUserAPI = Depends()
 ):
     """
+    Require Admin Authentication Token
+
     Create the first FinOps user
     """
     try:

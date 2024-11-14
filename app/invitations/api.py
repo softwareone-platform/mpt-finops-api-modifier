@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 
 from app.core.auth_jwt_bearer import JWTBearer
 from app.invitations.model import (
+    CheckInvitationResponse,
     CreateInvitationData,
     CreateInvitationResponse,
     InvitationResponse,
@@ -25,6 +26,8 @@ async def create_invitations(
         data: CreateInvitationData,
 ):
     """
+    Require User Authentication Token
+
     Send an invitation email to a new user within an organisation
     """
     return JSONResponse(status_code=201,
@@ -41,12 +44,35 @@ async def create_invited_user(
         id: int,  # invitation id
 ):
     """
-    Create the invited user
+    Require User Authentication Token
+
+    Create the invited user in CloudSpend
     """
     return JSONResponse(status_code=201,
                         content={"display_name": "your friendly neighborhood spider-man",
                                  "email": "peter.parker@spider.com",
                                  "org_id": "ABC-1223-ABC-123"})
+
+
+
+
+@router.get(
+    path="/{id}",
+    status_code=http_status.HTTP_200_OK,
+    response_model=CheckInvitationResponse,
+    dependencies=[Depends(JWTBearer())]
+)
+async def get_invitation_id(
+        data: CreateInvitationData,
+        code: str
+):
+    """
+    Require User Authentication Token
+
+    Check if a user has been invited
+    """
+    return {}
+
 
 
 @router.get(
@@ -59,7 +85,9 @@ async def get_list_of_invitations(
         data: CreateInvitationData,
 ):
     """
-    Get list of invitations
+    Require User Authentication Token
+
+    Get list of all invitations sent by a given user
     """
     return JSONResponse(status_code=200,
                         content=[
