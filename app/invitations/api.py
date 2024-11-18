@@ -6,9 +6,7 @@ from starlette.responses import JSONResponse
 
 from app.core.auth_jwt_bearer import JWTBearer
 from app.invitations.model import (
-    CheckInvitationResponse,
     CreateInvitationData,
-    CreateInvitationResponse,
     InvitationResponse,
 )
 
@@ -36,7 +34,7 @@ async def create_invitations(
 @router.post(
     path="/{id}/accept",
     status_code=http_status.HTTP_201_CREATED,
-    response_model=CreateInvitationResponse,
+    response_model=InvitationResponse,
     dependencies=[Depends(JWTBearer())]
 )
 async def create_invited_user(
@@ -59,7 +57,7 @@ async def create_invited_user(
 @router.get(
     path="/{id}",
     status_code=http_status.HTTP_200_OK,
-    response_model=CheckInvitationResponse,
+    response_model=InvitationResponse,
     dependencies=[Depends(JWTBearer())]
 )
 async def get_invitation_id(
