@@ -420,15 +420,6 @@ async def list_organization_data_sources(
 
 # Audit Log endpoints
 @app.get(
-    "/v1/audit-logs/",
-    response_model=PaginatedResponse[AuditLogRecord],
-    tags=["Audit Logs"],
-)
-async def list_audit_logs(pagination: PaginationParams = Depends()):
-    pass
-
-
-@app.get(
     "/v1/audit-logs/{audit_log_id}",
     response_model=AuditLogRecord,
     tags=["Audit Logs"],
