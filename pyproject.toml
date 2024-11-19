@@ -41,6 +41,7 @@ dev-dependencies = [
     "pytest-cov>=6.0.0",
     "pytest-deadfixtures>=2.2",
     "ruff>=0.3",
+    "typer>=0.13.1",
 ]
 
 
