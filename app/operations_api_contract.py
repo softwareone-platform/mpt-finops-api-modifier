@@ -304,15 +304,6 @@ async def update_organization(
     pass
 
 
-@app.delete(
-    "/v1/organizations/{organization_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=["Organizations"],
-)
-async def delete_organization(organization_id: uuid.UUID):
-    pass
-
-
 # User endpoints
 @app.post(
     "/v1/users/",
@@ -336,13 +327,6 @@ async def get_user(user_id: uuid.UUID):
 
 @app.put("/v1/users/{user_id}", response_model=User, tags=["Users"])
 async def update_user(user_id: uuid.UUID, user: UserUpdate):
-    pass
-
-
-@app.delete(
-    "/v1/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Users"]
-)
-async def delete_user(user_id: uuid.UUID):
     pass
 
 
@@ -392,15 +376,6 @@ async def get_entitlement(entitlement_id: uuid.UUID):
     tags=["Entitlements"],
 )
 async def update_entitlement(entitlement_id: uuid.UUID, entitlement: EntitlementUpdate):
-    pass
-
-
-@app.delete(
-    "/v1/entitlements/{entitlement_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=["Entitlements"],
-)
-async def delete_entitlement(entitlement_id: uuid.UUID):
     pass
 
 
