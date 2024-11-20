@@ -5,7 +5,7 @@ import logging
 from app import settings
 from app.core.api_client import APIClient
 
-AUTH_TOKEN_ENDPOINT = "/auth/v2/token"
+AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
 logger = logging.getLogger("optscale_auth_api")
 
 
@@ -50,7 +50,7 @@ class OptScaleAuth:
             if not response:
                 logger.error("Error obtaining the user access token")
                 return None
-            token = response.get("token")
+            token = response.get("data",{}).get("token")
             if token is not None:
                 return token
             logger.warning("Token not found in response when getting the user auth token.")
@@ -81,11 +81,11 @@ class OptScaleAuth:
             if not response:
                 logger.error("Empty response when getting the user auth token with admin API key.")
                 return None
-            if response.get("user_id") != user_id:
+            if response.get("data",{}).get("user_id", 0) != user_id:
                 logger.error(f"User ID mismatch: requested {user_id}, "
                              f"received {response.get('user_id')}")
                 return None
-            token = response.get("token")
+            token = response.get("data",{}).get("token")
             if token is not None:
                 return token
             logger.warning("Token not found in response when getting user auth token.")

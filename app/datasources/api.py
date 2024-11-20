@@ -18,7 +18,7 @@ router = APIRouter()
     response_model=DatasourceResponse,
     dependencies=[Depends(JWTBearer())]
 )
-async def create_orgs(
+async def create_datasource(
         data: CreateDatasource,
         org_api: OptScaleOrgAPI = Depends()
 ):

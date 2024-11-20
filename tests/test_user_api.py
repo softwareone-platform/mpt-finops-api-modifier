@@ -77,7 +77,7 @@ async def test_create_user_with_valid_authentication(async_client: AsyncClient,
         )
 
         # Verify the response status and JSON structure
-        assert response.status_code == 201, "Expected 201 Created for valid authentication"
+        assert response.status_code == 201, "Expected 201 Created for valid user creation"
         got = response.json()
         want = test_data["user"]["case_create"]["response"]
         want["token"] = jwt_token

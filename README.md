@@ -16,9 +16,13 @@ Service that provides custom logic for:
 
 `docker run --rm optscale_api_modifier_test  `
 
+or 
+
+`./build_and_run_tests`
+
 # Run for Development
 
-`docker build -f dev.Dockerfile -t optscale_api_modifier `
+`docker build -f dev.Dockerfile -t optscale_api_modifier .`
 `docker run --rm optscale_api_modifier `
 
 # Create you .env file

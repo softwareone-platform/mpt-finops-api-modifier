@@ -4,6 +4,7 @@ import logging
 
 from app import settings
 from app.core.api_client import APIClient
+from app.core.exceptions import UserCreationError
 
 from .auth_api import OptScaleAuth
 
@@ -42,8 +43,10 @@ class OptScaleUserAPI:
                 logger.error("User creation failed. No response received.")
             return response
         except Exception as error:
-            logger.error(f"Exception occurred creating a user: {error}")
-            return None
+            logger.error(f"An unexpected error occurred while creating the user: {error}")
+            raise UserCreationError("An unexpected error occurred while creating the user.") \
+                from error
+
 
     async def get_user_by_id(self, admin_api_key: str, user_id: str) -> dict[str, str] | None:
         """

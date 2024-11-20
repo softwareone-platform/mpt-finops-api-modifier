@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from app import settings
 from app.core.api_client import APIClient
@@ -12,9 +13,9 @@ ORG_ENDPOINT = "/restapi/v2/organizations"
 logger = logging.getLogger("optscale_org_api")
 
 TOKEN_ERROR_MESSAGE = "Token not found or invalid for user {}"
-NO_ORG_MESSAGE = "User {} has no associated organization."
-ORG_RETRIEVED_MESSAGE = "User {} is already linked to an organization."
 ORG_CREATION_ERROR = "An error occurred creating an organization for user {}."
+
+
 
 
 class OptScaleOrgAPI:
@@ -23,7 +24,7 @@ class OptScaleOrgAPI:
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
         self.auth_client = OptScaleAuth()
 
-    async def get_user_org(self, user_id: str, admin_api_key: str) -> dict | None:
+    async def get_user_org(self, user_id: str, admin_api_key: str) -> list[Any] | None | Any:
         """
         Retrieves the organization for a given user
 
@@ -31,8 +32,23 @@ class OptScaleOrgAPI:
         :type user_id: string
         :param admin_api_key: the secret admin API key
         :type admin_api_key: string
-        :return: The organization data or None if there is an error or no organization exists.
-
+        :return: The organization data or None if there is an error.
+        An empty list if no organization exists
+        The Optscale API returns a list or dict like the following one:
+        {
+            "organizations": [
+                {
+                    "deleted_at": 0,
+                    "created_at": 1731919809,
+                    "id": "3e61c772-b78a-4345-b7da-5243b09bfe03",
+                    "name": "MyOrg",
+                    "pool_id": "0bc61f62-f280-4a03-bf3f-446b14994594",
+                    "is_demo": false,
+                    "currency": "USD",
+                    "cleaned_at": 0
+                }
+            ]
+        }
         """
         try:
             # request user's access token
@@ -47,12 +63,7 @@ class OptScaleOrgAPI:
             response = await self.api_client.get(endpoint=ORG_ENDPOINT,
                                                  headers=self.auth_client.build_bearer_token_header(
                                                      bearer_token=user_access_token))
-            if len(response) == 0:
-                logger.info(NO_ORG_MESSAGE.format(user_id))
-                return {}
-            else:
-                logger.info(ORG_RETRIEVED_MESSAGE.format(user_id))
-                return response
+            return response
         except Exception as error:
             logger.error(f"Exception occurred getting the orgs list: {error}")
             return None

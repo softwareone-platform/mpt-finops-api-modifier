@@ -53,5 +53,24 @@
         "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0yNzc0MGUzODc4OWEKMDAyMmNpZCBjcmVhdGVkOjE3MzAxMjY1MjEuMDMwNzU4CjAwMTZjaWQgcmVnaXN0ZXI6VHJ1ZQowMDFhY2lkIHByb3ZpZGVyOm9wdHNjYWxlCjAwMmZzaWduYXR1cmUg4Ri0H_K4_xmY_fp8WvfIqZbzsrXK0P6I0KVTi8gRHkYK"
       }
     }
+  },
+  "org": {
+    "case_create": {
+      "payload": {
+        "org_name": "Super Hero Inc",
+        "user_id": "10102-1001-111002-10010",
+          "currency": "US"
+      },
+      "response": {
+        "deleted_at": 0,
+        "created_at": 1731919809,
+        "id": "3e61c772-b78a-4345-b7da-5243b09bfe03",
+        "name": "MyOrg",
+        "pool_id": "0bc61f62-f280-4a03-bf3f-446b14994594",
+        "is_demo": false,
+        "currency": "USD",
+        "cleaned_at": 0
+      }
+    }
   }
 }

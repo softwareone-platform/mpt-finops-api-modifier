@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 
 from app.core.auth_jwt_bearer import JWTBearer
 from app.core.error_formats import create_error_response
+from app.core.exceptions import handle_exception
 from app.optscale_api.users_api import OptScaleUserAPI
 from app.users.model import CreateUserData, CreateUserResponse
 
@@ -32,6 +33,8 @@ async def create_user(
         response = await user_api.create_user(email=data.email,
                                               display_name=data.display_name,
                                               password=data.password)
+
+
         if response.get("error"):
             logger.warning(f"Failed to create user with email: {data.email}")
             raise create_error_response(status_code=response.get("status_code",
@@ -39,11 +42,8 @@ async def create_user(
                                         title="Cannot create the user",
                                         errors={"reason": response.get("data", {}).get("error", {}).
                                         get("reason", "")})
-        return JSONResponse(status_code=response.get("status_code", 200),
+        return JSONResponse(status_code=response.get("status_code", http_status.HTTP_201_CREATED),
                             content=response.get("data", {}))
 
     except Exception as error:
-        logger.error(f"Exception occurred during user creation: {error}")
-        raise create_error_response(status_code=http_status.HTTP_403_FORBIDDEN,
-                                    title="An exception occurred",
-                                    errors={"exception": str(error)})
+        handle_exception(error=error)

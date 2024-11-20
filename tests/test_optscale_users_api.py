@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from app.core.exceptions import UserCreationError
 from app.optscale_api.users_api import OptScaleUserAPI
 
 USER_ID = "f0bd0c4a-7c55-45b7-8b58-27740e38789a"
@@ -84,17 +85,18 @@ class TestOptscaleAPI:
 
     async def test_create_user_exception_handling(self, optscale_api, mock_post, caplog):
         # Simulate an exception during the user creation process
-        mock_post.side_effect = Exception("Test exception")
+        # Mock unexpected exception
+        mock_post.side_effect = Exception("Unexpected error")
 
         with caplog.at_level(logging.ERROR):
-            result = await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME,
-                                                    password=PASSWORD)
+            # Verify UserCreationError is raised
+            with pytest.raises(UserCreationError, match="An unexpected error occurred "
+                                                        "while creating the user."):
+                await optscale_api.create_user(email=EMAIL, display_name=DISPLAY_NAME,
+                                               password=PASSWORD)
 
-        # Verify the response is None when an exception is raised
-        assert result is None, "Expected None when an exception occurs during user creation"
-        # Verify the error log entry
-        assert "Exception occurred creating a user: Test exception" in caplog.text, \
-            "Expected error log for the exception in user creation"
+        # Verify the error log
+        assert "An unexpected error occurred while creating the user:" in caplog.text
 
     @pytest.mark.parametrize("user_id, expected_status, expected_reason", [  # noqa: PT006
         (USER_ID, 200, None),
