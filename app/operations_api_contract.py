@@ -274,11 +274,6 @@ async def create_user(user: UserCreate):
     pass
 
 
-@app.get("/v1/users/", response_model=PaginatedResponse[User], tags=["Users"])
-async def list_users(pagination: PaginationParams = Depends()):
-    pass
-
-
 @app.get("/v1/users/{user_id}", response_model=User, tags=["Users"])
 async def get_user(user_id: uuid.UUID):
     pass
