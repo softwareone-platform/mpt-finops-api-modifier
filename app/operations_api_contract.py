@@ -39,20 +39,6 @@ class PaginatedResponse(BaseModel, Generic[T]):
     items: list[T] = Field(description="List of items for the current page")
 
 
-class DataSourceType(str, Enum):
-    AWS_ROOT = "aws_root"
-    AWS_LINKED = "aws_linked"
-    AZURE_TENANT = "azure_tenant"
-    AZURE_SUBSCRIPTION = "azure_subscription"
-    GCP = "gcp"
-
-
-class UserRole(str, Enum):
-    ORGANISATION_MANAGER = "organisation_manager"
-    MANAGER = "manager"
-    ENGINEER = "engineer"
-
-
 # Organization Models
 class OrganizationBase(CamelModel):
     name: str = Field(
@@ -101,6 +87,14 @@ class Organization(OrganizationBase):
 
 
 # User Models
+
+
+class UserRole(str, Enum):
+    ORGANISATION_MANAGER = "organisation_manager"
+    MANAGER = "manager"
+    ENGINEER = "engineer"
+
+
 class UserBase(CamelModel):
     email: EmailStr
 
@@ -147,6 +141,38 @@ class EntitlementUpdate(EntitlementBase):
     pass
 
 
+class Entitlement(EntitlementBase):
+    entitlement_id: uuid.UUID = Field(
+        description="Unique identifier for the entitlement",
+        examples=["123e4567-e89b-12d3-a456-426614174000"],
+    )
+    activated_at: datetime.datetime | None = Field(
+        description="Timestamp when the entitlement was activated",
+    )
+    activated_by: uuid.UUID | None = Field(
+        description="User ID who activated the entitlement",
+    )
+    terminated_at: datetime.datetime | None = Field(
+        description="Timestamp when the entitlement was terminated",
+        examples=["2023-12-31T12:00:00Z"],
+    )
+    terminated_by: uuid.UUID | None = Field(
+        description="User ID who terminated the entitlement",
+    )
+
+    class Config:
+        from_attributes = True
+
+
+# Data source models
+class DataSourceType(str, Enum):
+    AWS_ROOT = "aws_root"
+    AWS_LINKED = "aws_linked"
+    AZURE_TENANT = "azure_tenant"
+    AZURE_SUBSCRIPTION = "azure_subscription"
+    GCP = "gcp"
+
+
 class DataSource(CamelModel):
     organisation_id: uuid.UUID = Field(
         description="ID of the organization this data source belongs to",
@@ -168,29 +194,6 @@ class DataSource(CamelModel):
     icon_url: HttpUrl = Field(
         description="URL to the icon representing this data source",
         examples=["https://example.com/icons/aws.png"],
-    )
-
-    class Config:
-        from_attributes = True
-
-
-class Entitlement(EntitlementBase):
-    entitlement_id: uuid.UUID = Field(
-        description="Unique identifier for the entitlement",
-        examples=["123e4567-e89b-12d3-a456-426614174000"],
-    )
-    activated_at: datetime.datetime | None = Field(
-        description="Timestamp when the entitlement was activated",
-    )
-    activated_by: uuid.UUID | None = Field(
-        description="User ID who activated the entitlement",
-    )
-    terminated_at: datetime.datetime | None = Field(
-        description="Timestamp when the entitlement was terminated",
-        examples=["2023-12-31T12:00:00Z"],
-    )
-    terminated_by: uuid.UUID | None = Field(
-        description="User ID who terminated the entitlement",
     )
 
     class Config:
