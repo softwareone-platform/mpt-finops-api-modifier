@@ -103,12 +103,11 @@ class Organization(OrganizationBase):
 # User Models
 class UserBase(CamelModel):
     email: EmailStr
-    organisation_id: uuid.UUID
-    role: UserRole
 
 
 class UserCreate(UserBase):
-    pass
+    organisation_id: uuid.UUID
+    role: UserRole
 
 
 class UserUpdate(UserBase):
@@ -117,6 +116,8 @@ class UserUpdate(UserBase):
 
 class User(UserBase):
     id: uuid.UUID
+    organisation_id: uuid.UUID
+    role: UserRole
     created_at: datetime.datetime
     last_login_at: datetime.datetime
 
