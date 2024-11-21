@@ -47,43 +47,6 @@ class DataSourceType(str, Enum):
     GCP = "gcp"
 
 
-class AuditLogObjectType(str, Enum):
-    USER = "user"
-    ORGANIZATION = "organization"
-    ENTITLEMENT = "entitlement"
-    DATA_SOURCE = "data_source"
-
-
-class AuditLogRecord(CamelModel):
-    id: uuid.UUID = Field(
-        description="Unique identifier for the audit log record",
-    )
-    timestamp: datetime.datetime = Field(
-        description="When this event occurred",
-    )
-    object_type: AuditLogObjectType = Field(
-        description="Type of object this audit log entry refers to",
-        examples=[
-            AuditLogObjectType.USER,
-            AuditLogObjectType.ORGANIZATION,
-            AuditLogObjectType.ENTITLEMENT,
-            AuditLogObjectType.DATA_SOURCE,
-        ],
-    )
-    summary: str = Field(
-        description="Human-readable description of what happened",
-        examples=[
-            "User john.doe@company.com created",
-            "Organization Acme Corp updated their spending limit to $50,000",
-            "AWS entitlement ACC-1234 was terminated",
-            "New Azure data source connected",
-        ],
-    )
-
-    class Config:
-        from_attributes = True
-
-
 class UserRole(str, Enum):
     ORGANISATION_MANAGER = "organisation_manager"
     MANAGER = "manager"
@@ -234,8 +197,8 @@ class Entitlement(EntitlementBase):
 
 
 app = FastAPI(
-    title="Operations API",
-    description="API for managing organizations, users, entitlements, data sources and audit logs",
+    title="Optscale Operations API",
+    description="API to be used by Operators to manage Optscale",
 )
 
 tags_metadata = [
@@ -254,10 +217,6 @@ tags_metadata = [
     {
         "name": "Data Sources",
         "description": "Read-only operations with data sources",
-    },
-    {
-        "name": "Audit Logs",
-        "description": "Read-only access to system audit logs",
     },
 ]
 
@@ -413,27 +372,6 @@ async def get_data_source(data_source_id: uuid.UUID):
     tags=["Data Sources"],
 )
 async def list_organization_data_sources(
-    organization_id: uuid.UUID, pagination: PaginationParams = Depends()
-):
-    pass
-
-
-# Audit Log endpoints
-@app.get(
-    "/v1/audit-logs/{audit_log_id}",
-    response_model=AuditLogRecord,
-    tags=["Audit Logs"],
-)
-async def get_audit_log(audit_log_id: uuid.UUID):
-    pass
-
-
-@app.get(
-    "/v1/organizations/{organization_id}/audit-logs/",
-    response_model=PaginatedResponse[AuditLogRecord],
-    tags=["Audit Logs"],
-)
-async def list_organization_audit_logs(
     organization_id: uuid.UUID, pagination: PaginationParams = Depends()
 ):
     pass
