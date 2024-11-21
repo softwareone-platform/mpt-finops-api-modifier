@@ -137,10 +137,6 @@ class EntitlementCreate(EntitlementBase):
     pass
 
 
-class EntitlementUpdate(EntitlementBase):
-    pass
-
-
 class Entitlement(EntitlementBase):
     entitlement_id: uuid.UUID = Field(
         description="Unique identifier for the entitlement",
@@ -334,15 +330,6 @@ async def list_entitlements(pagination: PaginationParams = Depends()):
     tags=["Entitlements"],
 )
 async def get_entitlement(entitlement_id: uuid.UUID):
-    pass
-
-
-@app.put(
-    "/v1/entitlements/{entitlement_id}",
-    response_model=Entitlement,
-    tags=["Entitlements"],
-)
-async def update_entitlement(entitlement_id: uuid.UUID, entitlement: EntitlementUpdate):
     pass
 
 
