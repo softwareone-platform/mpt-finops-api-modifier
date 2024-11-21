@@ -299,6 +299,15 @@ async def list_organization_users(
     pass
 
 
+@app.post(
+    "/v1/organizations/{organization_id}/users/{user_id}/make-admin",
+    response_model=User,
+    tags=["Users"],
+)
+async def user_make_admin(organization_id: uuid.UUID, user_id: uuid.UUID):
+    pass
+
+
 # Entitlement endpoints
 @app.post(
     "/v1/entitlements/",
