@@ -357,15 +357,6 @@ async def terminate_entitlement(entitlement_id: uuid.UUID):
 
 # Data Source endpoints
 @app.get(
-    "/v1/data-sources/",
-    response_model=PaginatedResponse[DataSource],
-    tags=["Data Sources"],
-)
-async def list_data_sources(pagination: PaginationParams = Depends()):
-    pass
-
-
-@app.get(
     "/v1/data-sources/{data_source_id}",
     response_model=DataSource,
     tags=["Data Sources"],
