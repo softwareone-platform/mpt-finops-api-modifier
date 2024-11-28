@@ -31,7 +31,7 @@ def create_jwt_token(subject: str, expires_in: int = 3600) -> str:
         "aud": JWT_AUDIENCE,
         "iat": now,
         "nbf": now,
-        "exp": expire_time
+        "exp": expire_time,
     }
 
     # Encode the token with the specified algorithm and secret
@@ -129,7 +129,6 @@ class TestDecodeJWT:
             "iss": JWT_ISSUER,
             "iat": int(time.time()),
             "exp": int(time.time()) + 3600,
-
         }
         token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
         decoded_token = decode_jwt(token)

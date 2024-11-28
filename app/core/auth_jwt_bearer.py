@@ -37,7 +37,7 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
             algorithms=[JWT_ALGORITHM],
             options={"require": ["exp", "nbf", "iss", "aud"]},
             audience=JWT_AUDIENCE,
-            issuer=JWT_ISSUER
+            issuer=JWT_ISSUER,
         )
 
         # Check for expiration
@@ -60,7 +60,9 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
     except InvalidTokenError:
         logger.error(f"The token {token} is not valid")
     except Exception as error:
-        logger.error(f"General error {error} occurred trying to decode the token {token}")
+        logger.error(
+            f"General error {error} occurred trying to decode the token {token}"
+        )
 
     return None
 
@@ -96,16 +98,16 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
         if credentials:
             if not verify_jwt(credentials.credentials):
-                raise create_error_response(status_code=http_status.HTTP_401_UNAUTHORIZED,
-                                            title="Invalid token or expired token.",
-                                            errors={"reason":
-                                                        "The token is invalid or has expired."}
-                                            )
+                raise create_error_response(
+                    status_code=http_status.HTTP_401_UNAUTHORIZED,
+                    title="Invalid token or expired token.",
+                    errors={"reason": "The token is invalid or has expired."},
+                )
             return credentials.credentials
         else:
             # The authentication schema is not Bearer
             raise create_error_response(
                 status_code=http_status.HTTP_401_UNAUTHORIZED,
                 title="Invalid authorization scheme.",
-                errors={"reason": "Invalid authorization scheme."}
+                errors={"reason": "Invalid authorization scheme."},
             )

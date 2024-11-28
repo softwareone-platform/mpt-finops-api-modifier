@@ -16,9 +16,10 @@ from app.main import app
 def mock_jwt_bearer():
     return True  # Mocking successful authentication
 
+
 def pytest_configure():
     # Override settings with defaults for testing
-    settings.Config.env_file = "/app/.env.test" # to match the container path
+    settings.Config.env_file = "/app/.env.test"  # to match the container path
 
 
 # Override JWTBearer dependency for all tests
@@ -32,8 +33,9 @@ def override_jwt_bearer():
 @pytest_asyncio.fixture
 async def async_client():
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport,
-                           base_url=f"http://{settings.api_v1_prefix}") as client:
+    async with AsyncClient(
+        transport=transport, base_url=f"http://{settings.api_v1_prefix}"
+    ) as client:
         yield client
 
 

@@ -6,7 +6,7 @@ from app import settings
 from app.core.api_client import APIClient
 from app.core.exceptions import UserCreationError
 
-from .auth_api import OptScaleAuth
+from .auth_api import build_admin_api_key_header
 
 AUTH_USERS_ENDPOINT = "/auth/v2/users"
 logger = logging.getLogger("optscale_user_api")
@@ -15,11 +15,11 @@ logger = logging.getLogger("optscale_user_api")
 class OptScaleUserAPI:
     def __init__(self):
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
-        self._auth_client = OptScaleAuth()
 
     # todo: check the password lenght and strength
-    async def create_user(self, email: str, display_name: str, password: str) -> (
-            dict[str, str] | None):
+    async def create_user(
+        self, email: str, display_name: str, password: str
+    ) -> dict[str, str] | None:
         """
         Creates a new user in the system.
 
@@ -35,20 +35,25 @@ class OptScaleUserAPI:
             payload = {
                 "email": email,
                 "display_name": display_name,
-                "password": password
-
+                "password": password,
             }
-            response = await self.api_client.post(endpoint=AUTH_USERS_ENDPOINT, data=payload)
+            response = await self.api_client.post(
+                endpoint=AUTH_USERS_ENDPOINT, data=payload
+            )
             if not response:
                 logger.error("User creation failed. No response received.")
             return response
         except Exception as error:
-            logger.error(f"An unexpected error occurred while creating the user: {error}")
-            raise UserCreationError("An unexpected error occurred while creating the user.") \
-                from error
+            logger.error(
+                f"An unexpected error occurred while creating the user: {error}"
+            )
+            raise UserCreationError(
+                "An unexpected error occurred while creating the user."
+            ) from error
 
-
-    async def get_user_by_id(self, admin_api_key: str, user_id: str) -> dict[str, str] | None:
+    async def get_user_by_id(
+        self, admin_api_key: str, user_id: str
+    ) -> dict[str, str] | None:
         """
         Retrieves a user's information
 
@@ -75,13 +80,16 @@ class OptScaleUserAPI:
 
         """
         try:
-            headers = self._auth_client.build_admin_api_key_header(admin_api_key=admin_api_key)
-            response = await self.api_client.get(endpoint=AUTH_USERS_ENDPOINT + "/" + user_id,
-                                                 headers=headers)
+            headers = build_admin_api_key_header(admin_api_key=admin_api_key)
+            response = await self.api_client.get(
+                endpoint=AUTH_USERS_ENDPOINT + "/" + user_id, headers=headers
+            )
             if not response:
                 logger.info(f"No data returned for the user {user_id}")
             return response
         except Exception as error:
-            logger.error(f"Exception occurred getting the information for the user: "
-                         f"{user_id} - {error}")
+            logger.error(
+                f"Exception occurred getting the information for the user: "
+                f"{user_id} - {error}"
+            )
             return None

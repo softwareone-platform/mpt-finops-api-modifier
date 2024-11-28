@@ -18,32 +18,34 @@ router = APIRouter()
     path="",
     status_code=http_status.HTTP_201_CREATED,
     response_model=CreateUserResponse,
-    dependencies=[Depends(JWTBearer())]
+    dependencies=[Depends(JWTBearer())],
 )
-async def create_user(
-        data: CreateUserData,
-        user_api: OptScaleUserAPI = Depends()
-):
+async def create_user(data: CreateUserData, user_api: OptScaleUserAPI = Depends()):
     """
     Require Admin Authentication Token
 
     Create the first FinOps user
     """
     try:
-        response = await user_api.create_user(email=data.email,
-                                              display_name=data.display_name,
-                                              password=data.password)
-
+        response = await user_api.create_user(
+            email=data.email, display_name=data.display_name, password=data.password
+        )
 
         if response.get("error"):
             logger.warning(f"Failed to create user with email: {data.email}")
-            raise create_error_response(status_code=response.get("status_code",
-                                                                 http_status.HTTP_403_FORBIDDEN),
-                                        title="Cannot create the user",
-                                        errors={"reason": response.get("data", {}).get("error", {}).
-                                        get("reason", "")})
-        return JSONResponse(status_code=response.get("status_code", http_status.HTTP_201_CREATED),
-                            content=response.get("data", {}))
+            raise create_error_response(
+                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
+                title="Cannot create the user",
+                errors={
+                    "reason": response.get("data", {})
+                    .get("error", {})
+                    .get("reason", "")
+                },
+            )
+        return JSONResponse(
+            status_code=response.get("status_code", http_status.HTTP_201_CREATED),
+            content=response.get("data", {}),
+        )
 
     except Exception as error:
         handle_exception(error=error)
