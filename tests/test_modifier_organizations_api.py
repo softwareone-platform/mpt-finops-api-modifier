@@ -39,7 +39,7 @@ async def test_create_org_no_authentication(async_client: AsyncClient, test_data
 
 
 @pytest.mark.parametrize(
-    "token, expected_status",# noqa: PT006
+    "token, expected_status",  # noqa: PT006
     [
         (
             "Bearer MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ"
@@ -59,9 +59,9 @@ async def test_create_org_with_invalid_token(
     response = await async_client.post(
         "/organizations", json=payload, headers={"Authorization": token}
     )
-    assert response.status_code == expected_status, (
-        f"Expected {expected_status} for token: {token}"
-    )
+    assert (
+        response.status_code == expected_status
+    ), f"Expected {expected_status} for token: {token}"
 
 
 async def test_create_org_with_valid_token(
@@ -118,9 +118,9 @@ async def test_create_org_exception_handling(
         )
 
     # Verify the response status and content
-    assert response.status_code == 403, (
-        "Expected 403 Forbidden when an exception occurs in user creation"
-    )
+    assert (
+        response.status_code == 403
+    ), "Expected 403 Forbidden when an exception occurs in user creation"
     got = response.json()
     assert got.get("detail").get("errors") == {"reason": "No details available"}
     # Verify the log entry

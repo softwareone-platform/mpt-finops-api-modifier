@@ -4,6 +4,7 @@ import logging
 
 from app import settings
 from app.core.api_client import APIClient
+from app.core.exceptions import UserAccessTokenError
 
 AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
 logger = logging.getLogger("optscale_auth_api")
@@ -35,40 +36,34 @@ class OptScaleAuth:
 
     async def obtain_user_auth_token_with_admin_api_key(
         self, user_id: str, admin_api_key: str
-    ) -> str | None:
+    ) -> str | Exception:
         """
         Obtains an authentication token for the given user_id using the admin API key
         :param user_id: the user's ID for whom the access token will be generated
         :type user_id: string
         :param admin_api_key: the secret API key
         :type admin_api_key: string
-        :return: The user authentication token if successfully obtained and verified, o
-        therwise None.
+        :return: The user authentication token if successfully obtained and verified,
+        otherwise a UserAccessTokenError exception
 
         """
         payload = {"user_id": user_id}
         headers = build_admin_api_key_header(admin_api_key=admin_api_key)
-        try:
-            response = await self.api_client.post(
-                endpoint=AUTH_TOKEN_ENDPOINT, headers=headers, data=payload
+        response = await self.api_client.post(
+            endpoint=AUTH_TOKEN_ENDPOINT, headers=headers, data=payload
+        )
+        if response.get("error"):
+            logger.error(f"Failed to get an admin access token for user {user_id}")
+            raise UserAccessTokenError("Failed to get an admin access token")
+
+        if response.get("data", {}).get("user_id", 0) != user_id:
+            logger.error(
+                f"User ID mismatch: requested {user_id}, "
+                f"received {response.get('user_id')}"
             )
-            if not response:
-                logger.error(
-                    "Empty response when getting the user auth token with admin API key."
-                )
-                return None
-            if response.get("data", {}).get("user_id", 0) != user_id:
-                logger.error(
-                    f"User ID mismatch: requested {user_id}, "
-                    f"received {response.get('user_id')}"
-                )
-                return None
-            token = response.get("data", {}).get("token")
-            if token is not None:
-                return token
-            logger.warning("Token not found in response when getting user auth token.")
-
-        except Exception as error:
-            logger.error(f"Error obtaining user auth token with admin API key: {error}")
-
-        return None
+            raise UserAccessTokenError("Access Token User ID mismatch")
+        token = response.get("data", {}).get("token")
+        if token is None:
+            raise UserAccessTokenError("Token not found in the response.")
+        logger.info(f"Admin Access Token successfully obtained: {token}")
+        return token

@@ -9,7 +9,6 @@ from app.core.api_client import APIClient
 from app.core.exceptions import (
     OptScaleAPIResponseError,
     UserAccessTokenError,
-    UserOrgCreationError,
 )
 from app.core.inout_validation import validate_currency
 from app.optscale_api.auth_api import (
@@ -75,7 +74,7 @@ class OptScaleOrgAPI:
 
             if response.get("error"):
                 logger.error(
-                    f"Failed to get the org from Server, for the user : {user_id}"
+                    f"Failed to get the org data from OptScale for the user : {user_id}"
                 )
                 raise OptScaleAPIResponseError(
                     title="Error response from OptScale",
@@ -84,20 +83,15 @@ class OptScaleOrgAPI:
                         "status_code", http_status.HTTP_403_FORBIDDEN
                     ),
                 )
-
+            logger.info(f"Successfully fetched user's org: {response}")
             return response
 
         except UserAccessTokenError as error:
             logger.error(f"Failed to get access token for user {user_id}: {error}")
-            raise
-
-        except OptScaleAPIResponseError as error:
-            logger.error(f"Failed to get access token for user {user_id}: {error}")
-            raise
 
         except Exception as error:
             logger.error(
-                f"Unexpected error retrieving organizations for {user_id}: {error}"
+                f"Exception occurred accessing an organization on OptScale: {error}"
             )
             raise
 
@@ -109,7 +103,7 @@ class OptScaleOrgAPI:
         user_id: str,
         admin_api_key: str,
         auth_client: OptScaleAuth,
-    ) -> dict | None:
+    ) -> dict | Exception:
         """
         Creates a new organization for a given user
 
@@ -137,6 +131,7 @@ class OptScaleOrgAPI:
                 "cleaned_at": 0
         }
         """
+
         try:
             logger.info(f"Fetching access token for user: {user_id}")
             user_access_token = await get_user_access_token(
@@ -151,29 +146,27 @@ class OptScaleOrgAPI:
             response = await self.api_client.post(
                 endpoint=ORG_ENDPOINT, headers=headers, data=payload
             )
-            if not response:
+
+            if response.get("error"):
                 logger.error(ORG_CREATION_ERROR.format(user_id))
-                raise UserOrgCreationError(
-                    f"Organization creation failed for user: {user_id}"
+                raise OptScaleAPIResponseError(
+                    title="Error response from OptScale",
+                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                    status_code=response.get(
+                        "status_code", http_status.HTTP_403_FORBIDDEN
+                    ),
                 )
 
             logger.info(f"Successfully created organization for user: {user_id}")
             return response
-        except UserAccessTokenError as auth_error:
-            logger.error(
-                f"Access token error while creating an org for the user: "
-                f"{user_id}: {auth_error}"
-            )
-            raise
-        except UserOrgCreationError as org_error:
-            logger.error(
-                f"Organization creation error for user: {user_id} - {org_error}"
-            )
+
+        except UserAccessTokenError as error:
+            logger.error(f"Failed to get access token for user {user_id}: {error}")
             raise
 
         except Exception as error:
             logger.error(
-                f"Exception occurred creating an org for the user: {user_id} - {error}"
+                f"Exception occurred creating an organization on OptScale: {error}"
             )
             raise
 

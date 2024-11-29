@@ -64,7 +64,7 @@ def mock_invalid_auth_token(mocker, optscale_auth_api):
     mock_auth_token = mocker.patch.object(
         optscale_auth_api,
         "obtain_user_auth_token_with_admin_api_key",
-        return_value=None,
+        side_effect=UserAccessTokenError("Failed to get an admin access token"),
     )
     return mock_auth_token
 
@@ -123,7 +123,7 @@ async def test_get_user_org_with_no_token(
     with caplog.at_level(logging.ERROR):
         with pytest.raises(
             UserAccessTokenError,
-            match="Access token could not be obtained for user: test_user",
+            match="Failed to get an admin access token",
         ):
             await optscale_org_api_instance.create_user_org(
                 org_name="MyOrg",
@@ -134,7 +134,7 @@ async def test_get_user_org_with_no_token(
             )
     # Verify the log entry
     assert (
-        "Access token could not be obtained for user: test_user" in caplog.text
+        "Failed to get an admin access token" in caplog.text
     ), "Expected error log message for the exception"  # noqa: E501
 
 
@@ -196,7 +196,7 @@ async def test_create_org_access_token_exception_handling(
             )
     # Verify the log entry
     assert (
-        "Access token error while creating an org for the user: test_user: Access Token exception"
+        "Failed to get access token for user test_user: Access Token exception"
         in caplog.text
     ), "Expected error log message for the exception"  # noqa: E501
 
@@ -221,7 +221,7 @@ async def test_create_org_user_org_creation_exception_handling(
             )
     # Verify the log entry
     assert (
-        "Organization creation error for user: test_user - Org Creation exception"
+        "Exception occurred creating an organization on OptScale: Org Creation exception"
         in caplog.text
     ), "Expected error log message for the exception"  # noqa: E501
 
@@ -246,6 +246,6 @@ async def test_create_org_user_org_exception_handling(
             )
     # Verify the log entry
     assert (
-        "Exception occurred creating an org for the user: test_user - Test Exception"
+        "Exception occurred creating an organization on OptScale: Test Exception"
         in caplog.text
     ), "Expected error log message for the exception"  # noqa: E501

@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import logging
 
+from fastapi import status as http_status
+
 from app import settings
 from app.core.api_client import APIClient
-from app.core.exceptions import UserCreationError
+from app.core.exceptions import OptScaleAPIResponseError
 
 from .auth_api import build_admin_api_key_header
 
@@ -19,7 +21,7 @@ class OptScaleUserAPI:
     # todo: check the password lenght and strength
     async def create_user(
         self, email: str, display_name: str, password: str
-    ) -> dict[str, str] | None:
+    ) -> dict[str, str] | Exception:
         """
         Creates a new user in the system.
 
@@ -29,27 +31,22 @@ class OptScaleUserAPI:
         :type display_name: string
         :param password: The password of the user.
         :type password: string
-        :return:dict[str, str] | None: User information if successful; otherwise, None.
+        :return:dict[str, str] | Exception: User information if successful; otherwise, None.
         """
-        try:
-            payload = {
-                "email": email,
-                "display_name": display_name,
-                "password": password,
-            }
-            response = await self.api_client.post(
-                endpoint=AUTH_USERS_ENDPOINT, data=payload
+
+        payload = {"email": email, "display_name": display_name, "password": password}
+        response = await self.api_client.post(
+            endpoint=AUTH_USERS_ENDPOINT, data=payload
+        )
+        if response.get("error"):
+            logger.error("Failed to create the requested user")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
             )
-            if not response:
-                logger.error("User creation failed. No response received.")
-            return response
-        except Exception as error:
-            logger.error(
-                f"An unexpected error occurred while creating the user: {error}"
-            )
-            raise UserCreationError(
-                "An unexpected error occurred while creating the user."
-            ) from error
+        logger.info(f"User successfully created: {response}")
+        return response
 
     async def get_user_by_id(
         self, admin_api_key: str, user_id: str
@@ -79,17 +76,17 @@ class OptScaleUserAPI:
         }
 
         """
-        try:
-            headers = build_admin_api_key_header(admin_api_key=admin_api_key)
-            response = await self.api_client.get(
-                endpoint=AUTH_USERS_ENDPOINT + "/" + user_id, headers=headers
+
+        headers = build_admin_api_key_header(admin_api_key=admin_api_key)
+        response = await self.api_client.get(
+            endpoint=AUTH_USERS_ENDPOINT + "/" + user_id, headers=headers
+        )
+        if response.get("error"):
+            logger.info(f"Failed to get the user {user_id} data from OptScale")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_404_NOT_FOUND),
             )
-            if not response:
-                logger.info(f"No data returned for the user {user_id}")
-            return response
-        except Exception as error:
-            logger.error(
-                f"Exception occurred getting the information for the user: "
-                f"{user_id} - {error}"
-            )
-            return None
+        logger.info(f"User Successfully fetched : {response}")
+        return response

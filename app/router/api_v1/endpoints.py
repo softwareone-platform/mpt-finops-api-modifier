@@ -8,7 +8,7 @@ api_router = APIRouter()
 include_api = api_router.include_router
 routers = (
     (user_router, "users", "users"),
-    (org_router, "organizations", "organizations")
+    (org_router, "organizations", "organizations"),
 )
 
 for router_item in routers:

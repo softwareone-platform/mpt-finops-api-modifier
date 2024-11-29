@@ -6,8 +6,11 @@ from starlette.responses import JSONResponse
 
 from app import settings
 from app.core.auth_jwt_bearer import JWTBearer
-from app.core.error_formats import create_error_response
-from app.core.exceptions import handle_exception
+from app.core.exceptions import (
+    OptScaleAPIResponseError,
+    UserAccessTokenError,
+    handle_exception,
+)
 from app.optscale_api.auth_api import OptScaleAuth
 from app.optscale_api.helpers.auth_tokens_dependency import get_auth_client
 from app.optscale_api.orgs_api import OptScaleOrgAPI
@@ -83,7 +86,7 @@ async def get_orgs(
             content=response.get("data", {}),
         )
 
-    except Exception as error:
+    except Exception(OptScaleAPIResponseError, UserAccessTokenError) as error:
         handle_exception(error=error)
 
 
@@ -158,20 +161,6 @@ async def create_orgs(
             admin_api_key=settings.admin_token,
             auth_client=auth_client,
         )
-
-        if response.get("error"):
-            logger.error(f"Failed to create the org : {data.org_name}")
-
-            raise create_error_response(
-                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
-                title="Cannot create the Org",
-                errors={
-                    "reason": response.get("data", {})
-                    .get("error", {})
-                    .get("reason", "")
-                },
-            )
-
         return JSONResponse(
             status_code=response.get("status_code", http_status.HTTP_201_CREATED),
             content=response.get("data", {}),
