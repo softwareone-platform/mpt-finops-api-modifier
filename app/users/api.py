@@ -76,3 +76,5 @@ async def create_user(data: CreateUserData, user_api: OptScaleUserAPI = Depends(
 
     except OptScaleAPIResponseError as error:
         handle_exception(error=error)
+
+)
