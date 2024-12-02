@@ -1,5 +1,4 @@
 import logging
-import time
 from typing import Optional
 
 import jwt
@@ -44,18 +43,6 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
             audience=JWT_AUDIENCE,
             issuer=JWT_ISSUER,
         )
-
-        # Check for expiration
-
-        current_time = time.time()
-        expire_in = float(decoded_token.get("exp", 0))
-
-        if decoded_token.get("exp", 0) < current_time:
-            logger.error("Token has expired")
-            return None
-        if expire_in < current_time:
-            logger.error(f"The token {token} is expired")
-            return None
         return decoded_token
 
     except ExpiredSignatureError:

@@ -57,12 +57,10 @@ class OptScaleAuth:
         if response.get("error"):
             logger.error(f"Failed to get an admin access token for user {user_id}")
             raise OptScaleAPIResponseError(
-                    title="Error response from OptScale",
-                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
-                    status_code=response.get(
-                        "status_code", http_status.HTTP_403_FORBIDDEN
-                    ),
-                )
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
+            )
 
         if response.get("data", {}).get("user_id", 0) != user_id:
             logger.error(
