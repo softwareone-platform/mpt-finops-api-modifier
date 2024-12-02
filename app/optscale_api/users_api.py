@@ -26,12 +26,11 @@ class OptScaleUserAPI:
         Creates a new user in the system.
 
         :param email: The email of the user.
-        :type email: string
         :param display_name: The display name of the user
-        :type display_name: string
         :param password: The password of the user.
-        :type password: string
-        :return:dict[str, str] | Exception: User information if successful; otherwise, None.
+        :return:dict[str, str] : User information.
+        :raises OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
         """
 
         payload = {"email": email, "display_name": display_name, "password": password}
@@ -58,7 +57,9 @@ class OptScaleUserAPI:
         :type admin_api_key: string
         :param user_id: the user's ID for whom we want to retrieve the information
         :type user_id: string
-        :return: a dict with the user's information if found. Otherwise, None
+        :return: a dict with the user's information if found
+        :raises OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
         example
         {
             "created_at": 1730126521,

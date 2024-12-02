@@ -21,7 +21,6 @@ def validate_currency(func):
             get_currency_by_code(currency)
         except CurrencyNotFoundError:
             logger.error(f"Invalid currency: {currency}.")
-            # replace None with a custom exception
             return None
         return await func(*args, **kwargs)
 

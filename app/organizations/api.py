@@ -7,8 +7,6 @@ from starlette.responses import JSONResponse
 from app import settings
 from app.core.auth_jwt_bearer import JWTBearer
 from app.core.exceptions import (
-    OptScaleAPIResponseError,
-    UserAccessTokenError,
     handle_exception,
 )
 from app.optscale_api.auth_api import OptScaleAuth
@@ -86,7 +84,7 @@ async def get_orgs(
             content=response.get("data", {}),
         )
 
-    except Exception(OptScaleAPIResponseError, UserAccessTokenError) as error:
+    except Exception as error:
         handle_exception(error=error)
 
 
@@ -102,10 +100,9 @@ async def create_orgs(
     auth_client: OptScaleAuth = Depends(get_auth_client),
 ):
     """
-    Create a new organization.
+    Create a new FinOPs organization.
 
-    This endpoint allows the creation of a new organization by interacting with the OptScale API.
-    It returns the created organization's details.
+    .
 
     :param data: The input data required to create an organization,including the user_id
     :param org_api: An instance of OptScaleOrgAPI for managing organization operations.
@@ -126,13 +123,6 @@ async def create_orgs(
             "currency": "USD",
             "cleaned_at": 0
         }
-
-    :raises:
-        The org_api.create_user_org() may raise these exceptions:
-
-        OptScaleAPIResponseError: If an error occurs while communicating with the OptScale API.
-        UserAccessTokenError: If there is an issue obtaining the user's access token.
-        Exception: For any other unexpected errors.
 
         This Endpoint, returns a formatted error object like this one, as a result of
         each exception.

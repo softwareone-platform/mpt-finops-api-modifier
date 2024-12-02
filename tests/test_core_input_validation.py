@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.inout_validation import validate_currency
+from app.core.input_validation import validate_currency
 
 
 @pytest.mark.asyncio

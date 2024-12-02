@@ -10,7 +10,7 @@ from app.core.exceptions import (
     OptScaleAPIResponseError,
     UserAccessTokenError,
 )
-from app.core.inout_validation import validate_currency
+from app.core.input_validation import validate_currency
 from app.optscale_api.auth_api import (
     OptScaleAuth,
     build_bearer_token_header,
@@ -38,14 +38,16 @@ class OptScaleOrgAPI:
         """
         Retrieves the organization for a given user
 
-        :param auth_client:
-        :type auth_client:
+        :param auth_client: An instance of the `OptScaleAuth` class used to interact
+            with the authentication service.
         :param user_id: the user's id for whom we want to retrieve the organization
-        :type user_id: string
         :param admin_api_key: the secret admin API key
-        :type admin_api_key: string
         :return: The organization data or None if there is an error.
         An empty list if no organization exists
+        :raise:
+            UserAccessTokenError If an error occurs while obtaining the access token.
+            A default Exception if an error occurs accessing the organization
+
         The Optscale API returns a list or dict like the following one:
         {
             "organizations": [
@@ -88,7 +90,7 @@ class OptScaleOrgAPI:
 
         except UserAccessTokenError as error:
             logger.error(f"Failed to get access token for user {user_id}: {error}")
-
+            raise
         except Exception as error:
             logger.error(
                 f"Exception occurred accessing an organization on OptScale: {error}"
@@ -107,17 +109,16 @@ class OptScaleOrgAPI:
         """
         Creates a new organization for a given user
 
-        :param auth_client:
-        :type auth_client:
-        :param org_name: the name of the organization
-        :type org_name: string
-        :param currency: the currency to use
-        :type currency: string
-        :param user_id: the user's id for whom we want to create the organization
-        :type user_id: string
-        :param admin_api_key: the Secret admin API key
-        :type admin_api_key: string
+        :param auth_client: An instance of the `OptScaleAuth` class used to interact
+        with the authentication service.
+        :param org_name: The name of the organization
+        :param currency: The currency to use
+        :param user_id: The user's id for whom we want to create the organization
+        :param admin_api_key: The Secret admin API key
         :return: The created organization data or None if there is an error.
+        :raise:
+            UserAccessTokenError If an error occurs while obtaining the access token.
+            A default Exception if an error occurs accessing the organization
 
         example
         {
@@ -169,23 +170,3 @@ class OptScaleOrgAPI:
                 f"Exception occurred creating an organization on OptScale: {error}"
             )
             raise
-
-    # async def add_cloud_account(self,cloud_account_conf:dict[str, str], org_id:str, user_id:str,
-    #                             admin_api_key:str):
-    #     try:
-    #
-    #         # todo: validate the cloud_account_conf
-    #         # request user's access token
-    #         user_access_token = await self.auth_client.obtain_user_auth_token_with_admin_api_key(
-    #             user_id=user_id,
-    #             admin_api_key=admin_api_key
-    #         )
-    #         if user_access_token is None:
-    #             logger.warning(TOKEN_ERROR_MESSAGE.format(user_id))
-    #             return None
-    #
-    #
-    #     except Exception as error:
-    #         logger.error(f"Exception occurred adding a
-    #         cloud account to the org {org_id}: {error}")
-    #         return None

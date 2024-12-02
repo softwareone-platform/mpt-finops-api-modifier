@@ -21,13 +21,18 @@ logger = logging.getLogger("auth_jwt")
 
 def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
     """
-    this function decodes a JWT token
-    and validates time and issuer/audience claims.
+    Decodes a JWT token and validates its critical claims,
+    including time-based and issuer/audience claims.
 
-    :param token:
-    :type token:
-    :return:
-    :rtype:
+
+    :param token: The JWT token to decode.
+    :return: The decoded token as a dictionary if valid, or `None`
+    if the token is invalid or expired.
+    :raises:
+        ExpiredSignatureError: If the token's signature has expired.
+        DecodeError: If the token cannot be decoded due to formatting or cryptographic issues.
+        InvalidTokenError: If the token is otherwise invalid.
+        Exception: For any general decoding errors.
     """
     try:
         # Decode token and validate critical claims
@@ -69,11 +74,12 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
 
 def verify_jwt(jw_token: str) -> bool:
     """
+    Verifies the validity of a JWT token by decoding it and checking its claims.
 
-    :param jw_token:
-    :type jw_token:
-    :return:
-    :rtype:;
+    :param jw_token: The JWT token to verify.
+    :return: `True` if the token is valid and contains
+    the expected claims, otherwise `False`.
+
     """
     is_token_valid = False
     payload = decode_jwt(jw_token)

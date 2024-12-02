@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import logging
 
+from fastapi import status as http_status
+
 from app import settings
 from app.core.api_client import APIClient
-from app.core.exceptions import UserAccessTokenError
+from app.core.exceptions import OptScaleAPIResponseError, UserAccessTokenError
 
 AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
 logger = logging.getLogger("optscale_auth_api")
@@ -54,7 +56,13 @@ class OptScaleAuth:
         )
         if response.get("error"):
             logger.error(f"Failed to get an admin access token for user {user_id}")
-            raise UserAccessTokenError("Failed to get an admin access token")
+            raise OptScaleAPIResponseError(
+                    title="Error response from OptScale",
+                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                    status_code=response.get(
+                        "status_code", http_status.HTTP_403_FORBIDDEN
+                    ),
+                )
 
         if response.get("data", {}).get("user_id", 0) != user_id:
             logger.error(

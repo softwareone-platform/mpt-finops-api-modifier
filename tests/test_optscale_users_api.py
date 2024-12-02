@@ -73,8 +73,8 @@ async def test_create_duplicate_user(caplog, optscale_api, mock_post):
             }
         },
         "error": 'HTTP error: 409 - {"error": {"status_code": 409, "error_code": "OA0042", '
-                 '"reason": "User jerry.drake2@alphaagancy.com already exists", '
-                 '"params": ["jerry.drake2@alphaagancy.com"]}}',
+        '"reason": "User jerry.drake2@alphaagancy.com already exists", '
+        '"params": ["jerry.drake2@alphaagancy.com"]}}',
         "status_code": 409,
     }
     mock_post.return_value = mock_response
@@ -114,9 +114,7 @@ async def test_valid_get_user_by_id(optscale_api, mock_get, user_id=USER_ID):
     }
     mock_get.return_value = mock_response
 
-    await optscale_api.get_user_by_id(
-        user_id=user_id, admin_api_key=ADMIN_API_KEY
-    )
+    await optscale_api.get_user_by_id(user_id=user_id, admin_api_key=ADMIN_API_KEY)
 
     mock_get.assert_called_once_with(
         endpoint=f"/auth/v2/users/{user_id}", headers={"Secret": ADMIN_API_KEY}
