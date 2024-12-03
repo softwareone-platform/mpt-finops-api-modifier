@@ -20,7 +20,7 @@ def validate_currency(func):
         try:
             get_currency_by_code(currency)
         except CurrencyNotFoundError:
-            logger.error(f"Invalid currency: {currency}.")
+            logger.error("Invalid currency: %s.", currency)
             return None
         return await func(*args, **kwargs)
 

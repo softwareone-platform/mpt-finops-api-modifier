@@ -8,13 +8,21 @@ from app.core.error_formats import (
 )
 
 
-@pytest.mark.parametrize("status_code, title, errors, expected_type", [  # noqa: PT006
-    (400, "Validation Error", {"field": ["Invalid value"]}, STATUS_TYPE_URLS[400]),
-    (401, "Unauthorized", None, STATUS_TYPE_URLS[401]),
-    (403, "Forbidden", {"resource": ["Access denied"]}, STATUS_TYPE_URLS[403]),
-    (404, "Resource Not Found", {"id": ["Not found"]}, STATUS_TYPE_URLS[404]),
-    (426, "Upgrade Required", {"reason": "upgrade required"}, DEFAULT_TYPE_URL),  # Default type
-])
+@pytest.mark.parametrize(
+    ("status_code", "title", "errors", "expected_type"),
+    [  # noqa: PT006
+        (400, "Validation Error", {"field": ["Invalid value"]}, STATUS_TYPE_URLS[400]),
+        (401, "Unauthorized", None, STATUS_TYPE_URLS[401]),
+        (403, "Forbidden", {"resource": ["Access denied"]}, STATUS_TYPE_URLS[403]),
+        (404, "Resource Not Found", {"id": ["Not found"]}, STATUS_TYPE_URLS[404]),
+        (
+            426,
+            "Upgrade Required",
+            {"reason": "upgrade required"},
+            DEFAULT_TYPE_URL,
+        ),  # Default type
+    ],
+)
 def test_create_error_response_valid(status_code, title, errors, expected_type):
     """Test valid inputs for create_error_response."""
     response = create_error_response(status_code, title, errors)
@@ -39,7 +47,7 @@ def test_create_error_response_invalid_errors():
         create_error_response(
             status_code=400,
             title="Validation Error",
-            errors=["This is invalid"]  # Invalid type
+            errors=["This is invalid"],  # Invalid type
         )
 
 
@@ -48,7 +56,7 @@ def test_create_error_response_default_type_url():
     response = create_error_response(
         status_code=123,
         title="Unknown Error",
-        errors={"reason": ["Somebody ate the cake!"]}
+        errors={"reason": ["Somebody ate the cake!"]},
     )
     detail = response.detail
 

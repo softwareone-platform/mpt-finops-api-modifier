@@ -1,5 +1,4 @@
 import logging
-import time
 from typing import Optional
 
 import jwt
@@ -21,13 +20,18 @@ logger = logging.getLogger("auth_jwt")
 
 def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
     """
-    this function decodes a JWT token
-    and validates time and issuer/audience claims.
+    Decodes a JWT token and validates its critical claims,
+    including time-based and issuer/audience claims.
 
-    :param token:
-    :type token:
-    :return:
-    :rtype:
+
+    :param token: The JWT token to decode.
+    :return: The decoded token as a dictionary if valid, or `None`
+    if the token is invalid or expired.
+    :the functions handles the following exceptions:
+        ExpiredSignatureError: If the token's signature has expired.
+        DecodeError: If the token cannot be decoded due to formatting or cryptographic issues.
+        InvalidTokenError: If the token is otherwise invalid.
+        Exception: For any general decoding errors.
     """
     try:
         # Decode token and validate critical claims
@@ -37,41 +41,33 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
             algorithms=[JWT_ALGORITHM],
             options={"require": ["exp", "nbf", "iss", "aud"]},
             audience=JWT_AUDIENCE,
-            issuer=JWT_ISSUER
+            issuer=JWT_ISSUER,
         )
-
-        # Check for expiration
-
-        current_time = time.time()
-        expire_in = float(decoded_token.get("exp", 0))
-
-        if decoded_token.get("exp", 0) < current_time:
-            logger.error("Token has expired")
-            return None
-        if expire_in < current_time:
-            logger.error(f"The token {token} is expired")
-            return None
         return decoded_token
 
     except ExpiredSignatureError:
-        logger.error(f"Expired Signature for the {token}")
+        logger.error("Expired Signature for the")
     except DecodeError:
-        logger.error(f"The token {token} cannot be decoded")
+        logger.error("The token cannot be decoded")
     except InvalidTokenError:
-        logger.error(f"The token {token} is not valid")
+        logger.error("The token is not valid")
     except Exception as error:
-        logger.error(f"General error {error} occurred trying to decode the token {token}")
+        logger.error(
+            "General error %s occurred trying to decode the token",
+            error,
+        )
 
     return None
 
 
 def verify_jwt(jw_token: str) -> bool:
     """
+    Verifies the validity of a JWT token by decoding it and checking its claims.
 
-    :param jw_token:
-    :type jw_token:
-    :return:
-    :rtype:;
+    :param jw_token: The JWT token to verify.
+    :return: `True` if the token is valid and contains
+    the expected claims, otherwise `False`.
+
     """
     is_token_valid = False
     payload = decode_jwt(jw_token)
@@ -96,16 +92,16 @@ class JWTBearer(HTTPBearer):
         credentials: HTTPAuthorizationCredentials = await super().__call__(request)
         if credentials:
             if not verify_jwt(credentials.credentials):
-                raise create_error_response(status_code=http_status.HTTP_401_UNAUTHORIZED,
-                                            title="Invalid token or expired token.",
-                                            errors={"reason":
-                                                        "The token is invalid or has expired."}
-                                            )
+                raise create_error_response(
+                    status_code=http_status.HTTP_401_UNAUTHORIZED,
+                    title="Invalid token or expired token.",
+                    errors={"reason": "The token is invalid or has expired."},
+                )
             return credentials.credentials
         else:
             # The authentication schema is not Bearer
             raise create_error_response(
                 status_code=http_status.HTTP_401_UNAUTHORIZED,
                 title="Invalid authorization scheme.",
-                errors={"reason": "Invalid authorization scheme."}
+                errors={"reason": "Invalid authorization scheme."},
             )

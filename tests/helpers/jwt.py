@@ -30,7 +30,7 @@ def create_jwt_token(subject: str = SUBJECT, expires_in: int = 3600) -> str:
         "aud": JWT_AUDIENCE,
         "iat": now,
         "nbf": now,
-        "exp": expire_time
+        "exp": expire_time,
     }
 
     # Encode the token with the specified algorithm and secret

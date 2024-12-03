@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import logging
 
+from fastapi import status as http_status
+
 from app import settings
 from app.core.api_client import APIClient
+from app.core.exceptions import OptScaleAPIResponseError
 
-from .auth_api import OptScaleAuth
+from .auth_api import build_admin_api_key_header
 
 AUTH_USERS_ENDPOINT = "/auth/v2/users"
 logger = logging.getLogger("optscale_user_api")
@@ -14,46 +17,58 @@ logger = logging.getLogger("optscale_user_api")
 class OptScaleUserAPI:
     def __init__(self):
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
-        self._auth_client = OptScaleAuth()
 
     # todo: check the password lenght and strength
-    async def create_user(self, email: str, display_name: str, password: str) -> (
-            dict[str, str] | None):
+    async def create_user(
+        self,
+        email: str,
+        display_name: str,
+        password: str,
+        admin_api_key: str,
+    ) -> dict[str, str] | Exception:
         """
         Creates a new user in the system.
 
+        :param admin_api_key: the secret admin API key
         :param email: The email of the user.
-        :type email: string
         :param display_name: The display name of the user
-        :type display_name: string
         :param password: The password of the user.
-        :type password: string
-        :return:dict[str, str] | None: User information if successful; otherwise, None.
+        :return:dict[str, str] : User information.
+        :raises OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
         """
-        try:
-            payload = {
-                "email": email,
-                "display_name": display_name,
-                "password": password
 
-            }
-            response = await self.api_client.post(endpoint=AUTH_USERS_ENDPOINT, data=payload)
-            if not response:
-                logger.error("User creation failed. No response received.")
-            return response
-        except Exception as error:
-            logger.error(f"Exception occurred creating a user: {error}")
-            return None
+        payload = {
+            "email": email,
+            "display_name": display_name,
+            "password": password,
+            "verified": True,
+        }
+        headers = build_admin_api_key_header(admin_api_key=admin_api_key)
+        response = await self.api_client.post(
+            endpoint=AUTH_USERS_ENDPOINT, data=payload, headers=headers
+        )
+        if response.get("error"):
+            logger.error("Failed to create the requested user")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
+            )
+        logger.info("User successfully created: %s", response)
+        return response
 
-    async def get_user_by_id(self, admin_api_key: str, user_id: str) -> dict[str, str] | None:
+    async def get_user_by_id(
+        self, admin_api_key: str, user_id: str
+    ) -> dict[str, str] | None:
         """
         Retrieves a user's information
 
         :param admin_api_key: the secret admin API key
-        :type admin_api_key: string
         :param user_id: the user's ID for whom we want to retrieve the information
-        :type user_id: string
-        :return: a dict with the user's information if found. Otherwise, None
+        :return: a dict with the user's information if found
+        :raises OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
         example
         {
             "created_at": 1730126521,
@@ -71,14 +86,17 @@ class OptScaleUserAPI:
         }
 
         """
-        try:
-            headers = self._auth_client.build_admin_api_key_header(admin_api_key=admin_api_key)
-            response = await self.api_client.get(endpoint=AUTH_USERS_ENDPOINT + "/" + user_id,
-                                                 headers=headers)
-            if not response:
-                logger.info(f"No data returned for the user {user_id}")
-            return response
-        except Exception as error:
-            logger.error(f"Exception occurred getting the information for the user: "
-                         f"{user_id} - {error}")
-            return None
+
+        headers = build_admin_api_key_header(admin_api_key=admin_api_key)
+        response = await self.api_client.get(
+            endpoint=AUTH_USERS_ENDPOINT + "/" + user_id, headers=headers
+        )
+        if response.get("error"):
+            logger.info(f"Failed to get the user {user_id} data from OptScale")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_404_NOT_FOUND),
+            )
+        logger.info(f"User Successfully fetched : {response}")
+        return response

@@ -2,76 +2,124 @@ from __future__ import annotations
 
 import logging
 
+from fastapi import status as http_status
+
 from app import settings
 from app.core.api_client import APIClient
-from app.core.inout_validation import validate_currency
-
-from .auth_api import OptScaleAuth
+from app.core.exceptions import (
+    OptScaleAPIResponseError,
+    UserAccessTokenError,
+)
+from app.core.input_validation import validate_currency
+from app.optscale_api.auth_api import (
+    OptScaleAuth,
+    build_bearer_token_header,
+)
+from app.optscale_api.helpers.auth_tokens_dependency import (
+    get_user_access_token,
+)
 
 ORG_ENDPOINT = "/restapi/v2/organizations"
 logger = logging.getLogger("optscale_org_api")
 
-TOKEN_ERROR_MESSAGE = "Token not found or invalid for user {}"
-NO_ORG_MESSAGE = "User {} has no associated organization."
-ORG_RETRIEVED_MESSAGE = "User {} is already linked to an organization."
+TOKEN_ERROR_MESSAGE = "Failed to obtain access token for user ID: {}"
 ORG_CREATION_ERROR = "An error occurred creating an organization for user {}."
+
+ORG_FETCHING_ERROR = "An error occurred getting organizations for user {}."
 
 
 class OptScaleOrgAPI:
-
     def __init__(self):
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
-        self.auth_client = OptScaleAuth()
 
-    async def get_user_org(self, user_id: str, admin_api_key: str) -> dict | None:
+    async def get_user_org(
+        self, user_id: str, admin_api_key: str, auth_client: OptScaleAuth
+    ) -> dict:
         """
         Retrieves the organization for a given user
 
+        :param auth_client: An instance of the `OptScaleAuth` class used to interact
+            with the authentication service.
         :param user_id: the user's id for whom we want to retrieve the organization
-        :type user_id: string
         :param admin_api_key: the secret admin API key
-        :type admin_api_key: string
-        :return: The organization data or None if there is an error or no organization exists.
+        :return: The organization data or None if there is an error.
+        An empty list if no organization exists
+        :raise:
+            UserAccessTokenError If an error occurs while obtaining the access token.
+            A default Exception if an error occurs accessing the organization
 
+        The Optscale API returns a list or dict like the following one:
+        {
+            "organizations": [
+                {
+                    "deleted_at": 0,
+                    "created_at": 1731919809,
+                    "id": "3e61c772-b78a-4345-b7da-5243b09bfe03",
+                    "name": "MyOrg",
+                    "pool_id": "0bc61f62-f280-4a03-bf3f-446b14994594",
+                    "is_demo": false,
+                    "currency": "USD",
+                    "cleaned_at": 0
+                }
+            ]
+        }
         """
         try:
-            # request user's access token
-            user_access_token = await self.auth_client.obtain_user_auth_token_with_admin_api_key(
-                user_id=user_id,
-                admin_api_key=admin_api_key
-            )
-            if user_access_token is None:
-                logger.warning(TOKEN_ERROR_MESSAGE.format(user_id))
-                return None
             # get the user's org
-            response = await self.api_client.get(endpoint=ORG_ENDPOINT,
-                                                 headers=self.auth_client.build_bearer_token_header(
-                                                     bearer_token=user_access_token))
-            if len(response) == 0:
-                logger.info(NO_ORG_MESSAGE.format(user_id))
-                return {}
-            else:
-                logger.info(ORG_RETRIEVED_MESSAGE.format(user_id))
-                return response
+            user_access_token = await get_user_access_token(
+                user_id=user_id, admin_api_key=admin_api_key, auth_client=auth_client
+            )
+            response = await self.api_client.get(
+                endpoint=ORG_ENDPOINT,
+                headers=build_bearer_token_header(bearer_token=user_access_token),
+            )
+
+            if response.get("error"):
+                logger.error(
+                    "Failed to get the org data from OptScale for the user %s", user_id
+                )
+                raise OptScaleAPIResponseError(
+                    title="Error response from OptScale",
+                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                    status_code=response.get(
+                        "status_code", http_status.HTTP_403_FORBIDDEN
+                    ),
+                )
+            logger.info("Successfully fetched user's org %s", response)
+            return response
+
+        except UserAccessTokenError as error:
+            logger.error("Failed to get access token for user %s: %s", user_id, error)
+            raise
         except Exception as error:
-            logger.error(f"Exception occurred getting the orgs list: {error}")
-            return None
+            logger.error(
+                "Exception occurred accessing an organization on OptScale: %s",
+                error,
+            )
+            raise
 
     @validate_currency
-    async def create_user_org(self, org_name: str, currency: str, user_id: str,
-                              admin_api_key: str) -> dict | None:
+    async def create_user_org(
+        self,
+        org_name: str,
+        currency: str,
+        user_id: str,
+        admin_api_key: str,
+        auth_client: OptScaleAuth,
+    ) -> dict | Exception:
         """
         Creates a new organization for a given user
 
-        :param org_name: the name of the organization
-        :type org_name: string
-        :param currency: the currency to use
-        :type currency: string
-        :param user_id: the user's id for whom we want to create the organization
-        :type user_id: string
-        :param admin_api_key: the Secret admin API key
-        :type admin_api_key: string
+        :param auth_client: An instance of the `OptScaleAuth` class used to interact
+        with the authentication service.
+        :param org_name: The name of the organization
+        :param currency: The currency to use
+        :param user_id: The user's id for whom we want to create the organization
+        :param admin_api_key: The Secret admin API key
         :return: The created organization data or None if there is an error.
+        :raise:
+            UserAccessTokenError If an error occurs while obtaining the access token.
+            A default Exception if an error occurs accessing the organization
 
         example
         {
@@ -85,26 +133,42 @@ class OptScaleOrgAPI:
                 "cleaned_at": 0
         }
         """
+
         try:
-            user_access_token = await self.auth_client.obtain_user_auth_token_with_admin_api_key(
-                user_id=user_id,
-                admin_api_key=admin_api_key
+            logger.info("Fetching access token for user: %s", user_id)
+            user_access_token = await get_user_access_token(
+                user_id=user_id, admin_api_key=admin_api_key, auth_client=auth_client
             )
-            if user_access_token is None:
-                logger.warning(TOKEN_ERROR_MESSAGE.format(user_id))
-                return None
             # Create the user's organization
             payload = {"name": org_name, "currency": currency}
-            response = await self.api_client.post(endpoint=ORG_ENDPOINT,
-                                                  headers=self.auth_client.build_bearer_token_header(
-                                                      bearer_token=user_access_token,
+            headers = build_bearer_token_header(bearer_token=user_access_token)
+            logger.info(
+                "Creating organization for user: %s with payload %s:", user_id, payload
+            )
+            response = await self.api_client.post(
+                endpoint=ORG_ENDPOINT, headers=headers, data=payload
+            )
 
-                                                  ), data=payload)
-            if not response:
+            if response.get("error"):
                 logger.error(ORG_CREATION_ERROR.format(user_id))
-                return None
+                raise OptScaleAPIResponseError(
+                    title="Error response from OptScale",
+                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                    status_code=response.get(
+                        "status_code", http_status.HTTP_403_FORBIDDEN
+                    ),
+                )
+
+            logger.info("Successfully created organization for user: %s", user_id)
             return response
 
+        except UserAccessTokenError as error:
+            logger.error("Failed to get access token for user %s: %s", user_id, error)
+            raise
+
         except Exception as error:
-            logger.error(f"Exception occurred creating an org: {error}")
-            return None
+            logger.error(
+                "Exception occurred creating an organization on OptScale: %s",
+                error,
+            )
+            raise
