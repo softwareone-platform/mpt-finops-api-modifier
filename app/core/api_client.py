@@ -76,8 +76,9 @@ class APIClient:
         except httpx.RequestError as error:
             # Log and handle connection-related errors
             logger.error(
-                f"An error occurred while "
-                f"requesting {error.request.url!r}. Error: {str(error)}"
+                "An error occurred while requesting %r. Error: %s",
+                error.request.url,
+                str(error),
             )
             return {
                 "status_code": 503,  # Service Unavailable
@@ -87,9 +88,11 @@ class APIClient:
         except httpx.HTTPStatusError as error:
             # Log and handle HTTP errors (non-2xx responses)
             logger.error(
-                f"Error response {error.response.status_code} "
-                f"while requesting {error.request.url!r}."
+                "Error response %s while requesting %r.",
+                error.response.status_code,
+                error.request.url,
             )
+
             return {
                 "status_code": error.response.status_code,
                 "data": error.response.json(),
@@ -97,7 +100,7 @@ class APIClient:
             }
         except Exception as error:
             # Catch any other unexpected errors
-            logger.error(f"An unexpected error occurred: {str(error)}")
+            logger.error("An unexpected error occurred: %s", str(error))
             return {
                 "status_code": 500,  # Internal Server Error
                 "data": None,

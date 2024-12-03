@@ -27,7 +27,7 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
     :param token: The JWT token to decode.
     :return: The decoded token as a dictionary if valid, or `None`
     if the token is invalid or expired.
-    :raises:
+    :the functions handles the following exceptions:
         ExpiredSignatureError: If the token's signature has expired.
         DecodeError: If the token cannot be decoded due to formatting or cryptographic issues.
         InvalidTokenError: If the token is otherwise invalid.
@@ -46,14 +46,15 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
         return decoded_token
 
     except ExpiredSignatureError:
-        logger.error(f"Expired Signature for the {token}")
+        logger.error("Expired Signature for the")
     except DecodeError:
-        logger.error(f"The token {token} cannot be decoded")
+        logger.error("The token cannot be decoded")
     except InvalidTokenError:
-        logger.error(f"The token {token} is not valid")
+        logger.error("The token is not valid")
     except Exception as error:
         logger.error(
-            f"General error {error} occurred trying to decode the token {token}"
+            "General error %s occurred trying to decode the token",
+            error,
         )
 
     return None

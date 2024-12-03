@@ -65,7 +65,7 @@ def handle_exception(error: Exception) -> NoReturn:
     Returns:
         NoReturn: This function does not return; it always raises an exception.
     """
-    logger.error(f"Exception occurred during user creation: {error}")
+    logger.exception(f"Exception occurred during user creation: {error}")
     error = error.__dict__
     raise create_error_response(
         status_code=error.get("status_code", http_status.HTTP_403_FORBIDDEN),

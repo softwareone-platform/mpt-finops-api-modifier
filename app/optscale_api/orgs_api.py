@@ -76,7 +76,7 @@ class OptScaleOrgAPI:
 
             if response.get("error"):
                 logger.error(
-                    f"Failed to get the org data from OptScale for the user : {user_id}"
+                    "Failed to get the org data from OptScale for the user %s", user_id
                 )
                 raise OptScaleAPIResponseError(
                     title="Error response from OptScale",
@@ -85,15 +85,16 @@ class OptScaleOrgAPI:
                         "status_code", http_status.HTTP_403_FORBIDDEN
                     ),
                 )
-            logger.info(f"Successfully fetched user's org: {response}")
+            logger.info("Successfully fetched user's org %s", response)
             return response
 
         except UserAccessTokenError as error:
-            logger.error(f"Failed to get access token for user {user_id}: {error}")
+            logger.error("Failed to get access token for user %s: %s", user_id, error)
             raise
         except Exception as error:
             logger.error(
-                f"Exception occurred accessing an organization on OptScale: {error}"
+                "Exception occurred accessing an organization on OptScale: %s",
+                error,
             )
             raise
 
@@ -158,15 +159,16 @@ class OptScaleOrgAPI:
                     ),
                 )
 
-            logger.info(f"Successfully created organization for user: {user_id}")
+            logger.info("Successfully created organization for user: %s", user_id)
             return response
 
         except UserAccessTokenError as error:
-            logger.error(f"Failed to get access token for user {user_id}: {error}")
+            logger.error("Failed to get access token for user %s: %s", user_id, error)
             raise
 
         except Exception as error:
             logger.error(
-                f"Exception occurred creating an organization on OptScale: {error}"
+                "Exception occurred creating an organization on OptScale: %s",
+                error,
             )
             raise

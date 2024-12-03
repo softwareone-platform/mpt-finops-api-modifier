@@ -44,7 +44,7 @@ class OptScaleUserAPI:
                 reason=response.get("data", {}).get("error", {}).get("reason", ""),
                 status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
             )
-        logger.info(f"User successfully created: {response}")
+        logger.info("User successfully created: %s", response)
         return response
 
     async def get_user_by_id(

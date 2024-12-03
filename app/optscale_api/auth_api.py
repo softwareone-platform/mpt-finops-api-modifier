@@ -55,7 +55,7 @@ class OptScaleAuth:
             endpoint=AUTH_TOKEN_ENDPOINT, headers=headers, data=payload
         )
         if response.get("error"):
-            logger.error(f"Failed to get an admin access token for user {user_id}")
+            logger.error("Failed to get an admin access token for user %s", user_id)
             raise OptScaleAPIResponseError(
                 title="Error response from OptScale",
                 reason=response.get("data", {}).get("error", {}).get("reason", ""),
@@ -71,5 +71,5 @@ class OptScaleAuth:
         token = response.get("data", {}).get("token")
         if token is None:
             raise UserAccessTokenError("Token not found in the response.")
-        logger.info(f"Admin Access Token successfully obtained: {token}")
+        logger.info("Admin Access Token successfully obtained")
         return token
