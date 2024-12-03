@@ -135,7 +135,7 @@ class OptScaleOrgAPI:
         """
 
         try:
-            logger.info(f"Fetching access token for user: {user_id}")
+            logger.info("Fetching access token for user: %s", user_id)
             user_access_token = await get_user_access_token(
                 user_id=user_id, admin_api_key=admin_api_key, auth_client=auth_client
             )
@@ -143,7 +143,7 @@ class OptScaleOrgAPI:
             payload = {"name": org_name, "currency": currency}
             headers = build_bearer_token_header(bearer_token=user_access_token)
             logger.info(
-                f"Creating organization for user: {user_id} with payload: {payload}"
+                "Creating organization for user: %s with payload %s:", user_id, payload
             )
             response = await self.api_client.post(
                 endpoint=ORG_ENDPOINT, headers=headers, data=payload

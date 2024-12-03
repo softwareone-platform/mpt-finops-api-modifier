@@ -20,11 +20,16 @@ class OptScaleUserAPI:
 
     # todo: check the password lenght and strength
     async def create_user(
-        self, email: str, display_name: str, password: str
+        self,
+        email: str,
+        display_name: str,
+        password: str,
+        admin_api_key: str,
     ) -> dict[str, str] | Exception:
         """
         Creates a new user in the system.
 
+        :param admin_api_key: the secret admin API key
         :param email: The email of the user.
         :param display_name: The display name of the user
         :param password: The password of the user.
@@ -33,9 +38,15 @@ class OptScaleUserAPI:
         contacting the OptScale APIs
         """
 
-        payload = {"email": email, "display_name": display_name, "password": password}
+        payload = {
+            "email": email,
+            "display_name": display_name,
+            "password": password,
+            "verified": True,
+        }
+        headers = build_admin_api_key_header(admin_api_key=admin_api_key)
         response = await self.api_client.post(
-            endpoint=AUTH_USERS_ENDPOINT, data=payload
+            endpoint=AUTH_USERS_ENDPOINT, data=payload, headers=headers
         )
         if response.get("error"):
             logger.error("Failed to create the requested user")
@@ -54,9 +65,7 @@ class OptScaleUserAPI:
         Retrieves a user's information
 
         :param admin_api_key: the secret admin API key
-        :type admin_api_key: string
         :param user_id: the user's ID for whom we want to retrieve the information
-        :type user_id: string
         :return: a dict with the user's information if found
         :raises OptScaleAPIResponseError if any error occurs
         contacting the OptScale APIs

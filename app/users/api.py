@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi import status as http_status
 from starlette.responses import JSONResponse
 
+from app import settings
 from app.core.auth_jwt_bearer import JWTBearer
 from app.core.exceptions import OptScaleAPIResponseError, handle_exception
 from app.optscale_api.users_api import OptScaleUserAPI
@@ -68,6 +69,7 @@ async def create_user(data: CreateUserData, user_api: OptScaleUserAPI = Depends(
             email=str(data.email),
             display_name=data.display_name,
             password=data.password,
+            admin_api_key=settings.admin_token,
         )
         return JSONResponse(
             status_code=response.get("status_code", http_status.HTTP_201_CREATED),
