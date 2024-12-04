@@ -42,6 +42,7 @@ SECRET="my_super_secret_here"
 ALGORITHM=HS256
 ISSUER="SWO"
 AUDIENCE="modifier"
+LEEWAY=30.0
 # API Client
 DEFAULT_REQUEST_TIMEOUT=10
 # Admin Token

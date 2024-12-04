@@ -56,10 +56,16 @@ class TestDecodeJWT:
         assert decoded_token["aud"] == JWT_AUDIENCE
 
     def test_decode_jwt_expired_token(self):
-        token = create_jwt_token(subject=SUBJECT, expires_in=-10)  # Expired token
+        token = create_jwt_token(subject=SUBJECT, expires_in=-30)  # Expired token
 
         decoded_token = decode_jwt(token)
         assert decoded_token is None
+
+    def test_decode_jwt_grace_period(self):
+        # the default leeway value is 30sec
+        token = create_jwt_token(subject=SUBJECT, expires_in=-29)
+        decoded_token = decode_jwt(token)
+        assert decoded_token is not None
 
     def test_invalid_signature(self):
         # modify a token to invalidate the signature

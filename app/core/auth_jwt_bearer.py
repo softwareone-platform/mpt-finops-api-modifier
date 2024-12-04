@@ -14,6 +14,7 @@ JWT_SECRET = settings.secret
 JWT_ALGORITHM = settings.algorithm
 JWT_AUDIENCE = settings.audience
 JWT_ISSUER = settings.issuer
+JWT_LEEWAY = settings.leeway
 
 logger = logging.getLogger("auth_jwt")
 
@@ -42,6 +43,7 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
             options={"require": ["exp", "nbf", "iss", "aud"]},
             audience=JWT_AUDIENCE,
             issuer=JWT_ISSUER,
+            leeway=JWT_LEEWAY
         )
         return decoded_token
 

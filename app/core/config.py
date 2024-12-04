@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     issuer: str
     audience: str
+    leeway: float = 30.0
     default_request_timeout: int = 10  # API Client
     admin_token: str
     # Database
