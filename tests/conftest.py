@@ -4,8 +4,6 @@ import os
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.orm import sessionmaker
-from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import settings
 from app.core.auth_jwt_bearer import JWTBearer
@@ -37,14 +35,6 @@ async def async_client():
         transport=transport, base_url=f"http://{settings.api_v1_prefix}"
     ) as client:
         yield client
-
-
-@pytest_asyncio.fixture(scope="function")
-async def async_session() -> AsyncSession:
-    session = sessionmaker(class_=AsyncSession, expire_on_commit=False)
-
-    async with session() as s:
-        yield s
 
 
 @pytest.fixture

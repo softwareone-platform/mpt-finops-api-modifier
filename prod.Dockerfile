@@ -1,13 +1,19 @@
-FROM python:3.12
+FROM python:3.12-slim
 
 # The uv installer requires curl (and certificates) to download the release archive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates vim
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
 # Download the latest installer
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 
 # Run the uv installer then remove it
 RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Cleanup apt packaged
+RUN apt-get autoremove --purge -y; \
+    apt-get clean -y; \
+    rm -rf /var/lib/apt/lists/*
+
 
 # Ensure the installed binary is on the `PATH`
 ENV PATH="/root/.local/bin/:$PATH"
@@ -25,13 +31,26 @@ ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project && uv pip install pip
+    uv sync --frozen --no-install-project --no-dev && uv pip install pip
+
 
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
 ADD . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen
+    uv sync --frozen --no-dev
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
+
+# Running gunicorn with Uvicorn workers 
+CMD [ \
+    "gunicorn", \
+    "-b", ":8000", \
+    "--capture-output", \
+    "--error-logfile", "-", \
+    "--access-logfile", "-", \
+    "--workers", "4", \
+    "--worker-class", "uvicorn_worker.UvicornWorker", \
+    "app.main:app" \
+]
