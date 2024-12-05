@@ -1,46 +1,91 @@
-version: '3.8'
+name: ffc-api-modifier
 
 services:
-  db:
-    image: postgres:15
-    container_name: api_modifier_postgres_db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecurepass
-      POSTGRES_DB: users
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  db_test:
-    image: postgres:15
-    container_name: api_modifier_postgres_db_test
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecurepass
-      POSTGRES_DB: test_database
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
-
-  app_test:
-    container_name: optscale_api_modifier_test
+  app:
+    container_name: ffc-api-modifier-app
     build:
       context: .
-      dockerfile: test.Dockerfile
+      dockerfile: dev.Dockerfile
+    image: ffc-api-modifier:local
     working_dir: /app
-    command: bash -c ". /app/.venv/bin/activate && ruff check . && pytest"
+    command: bash -c "uv run fastapi dev --host 0.0.0.0 --port 8000"
     volumes:
       - .:/app
-      - venv:/app/.venv
-      - .env.test:/app/.env.test
+    env_file:
+      - .env
+    ports:
+      - "${FFC_MODIFIER_PORT:-8000}:8000"
+
+  app_test:
+    container_name: ffc-api-modifier-test
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: api-modifier-dev:local
+    working_dir: /app
+    command: >
+      bash -c "
+        set -e
+
+        # Run Ruff to check code style
+        uv run ruff check .
+
+        # Check formatting with Ruff
+        uv run ruff format --check --diff .
+
+        # Run tests with pytest
+        uv run pytest
+      "
+    volumes:
+      - .:/app
     env_file:
       - .env
 
-volumes:
-  postgres_data:
-  postgres_test_data:
-  venv:
+  bash:
+    container_name: ffc-api-modifier-bash
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: api-modifier-dev:local
+    working_dir: /app
+    command: bash
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+  format:
+    container_name: ffc-api-modifier-format
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: api-modifier-dev:local
+    working_dir: /app
+    command: >
+      bash -c "
+        set -e
+        # Run Ruff to fix code style
+        uv run ruff check . --fix --fix-only --show-fixes
+
+        # Run Ruff to format code
+        uv run ruff format .
+      "
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+  bandit:
+    container_name: ffc-api-modifier-bandit
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    image: api-modifier-dev:local
+    working_dir: /app
+    command: bash -c "uv run bandit -c pyproject.toml -r ."
+    volumes:
+      - .:/app
+    env_file:
+      - .env
