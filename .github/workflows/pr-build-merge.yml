@@ -26,26 +26,22 @@ jobs:
 
     - name: "Create test environment file"
       run: |
-          echo "API_V1_PREFIX=/api/v1" >> .env.test
-          echo "DEBUG=true" >> .env.test
-          echo "PROJECT_NAME=Test Project" >> .env.test
-          echo "VERSION=1.0.0" >> .env.test
-          echo "DESCRIPTION=Test Project Description" >> .env.test
-          echo "OPT_SCALE_API_URL=https://test.example.com/api" >> .env.test
-          echo "SECRET=testsecret" >> .env.test
-          echo "ALGORITHM=HS256" >> .env.test
-          echo "ISSUER=test_issuer" >> .env.test
-          echo "AUDIENCE=test_audience" >> .env.test
-          echo "DEFAULT_REQUEST_TIMEOUT=10" >> .env.test
-          echo "ADMIN_TOKEN=102-1020-1020-1001-10" >> .env.test
+          echo "PUBLIC_URL=http://localhost:8000" >> .env
+          echo "VERSION=1.0.0" >> .env
+          echo "SECRET=testsecret" >> .env
+          echo "ISSUER=test_issuer" >> .env
+          echo "AUDIENCE=test_audience" >> .env
+          echo "OPT_SCALE_API_URL=https://test.example.com/api" >> .env
+          echo "ADMIN_TOKEN=102-1020-1020-1001-10" >> .env
+
     - name: Debug test environment file
-      run: cat .env.test
+      run: cat .env
 
     - name: 'Build test containers'
       run: docker compose build app_test
 
     - name: 'Run validation & test'
-      run: docker compose run --service-ports -v $(pwd)/.env.test:/app/.env.test app_test
+      run: docker compose run --rm app_test
 
     - name: 'Stop containers'
       if: always()
