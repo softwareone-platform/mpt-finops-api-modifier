@@ -1,10 +1,12 @@
-# NOTE: Based on astral-sh example Dockerfile for uv-based projects:
-#       https://github.com/astral-sh/uv-docker-example/blob/main/Dockerfile
-
-FROM python:3.12-slim-bookworm
+FROM python:3.12
 
 # The uv installer requires curl (and certificates) to download the release archive
-RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+RUN apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates curl vim; \
+    apt-get autoremove --purge -y; \
+    apt-get clean -y; \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
 
 # Download the latest installer
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
@@ -28,19 +30,15 @@ ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-dev
+    uv sync --frozen --no-install-project
+
+RUN echo 'alias pip="uv pip"' >> ~/.bashrc
 
 # Then, add the rest of the project source code and install it
 # Installing separately from its dependencies allows optimal layer caching
-ADD . /app
+COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+    uv sync --frozen
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
-
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
-
-# Run the service using using uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

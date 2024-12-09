@@ -18,8 +18,9 @@ class APIClient:
         self.base_url = base_url
         self.timeout = timeout
         self.client = httpx.AsyncClient(
-            base_url=self.base_url, timeout=self.timeout, verify=False
-        )  # todo: check this verify
+            base_url=self.base_url,
+            timeout=self.timeout,
+        )
 
     async def _make_request(
         self,

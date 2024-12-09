@@ -8,9 +8,6 @@ from app.optscale_api.auth_api import OptScaleAuth
 logger = logging.getLogger("helper")
 
 
-TOKEN_ERROR_MESSAGE = "Failed to obtain access token for user ID: {}"
-
-
 def get_auth_client() -> OptScaleAuth:
     return OptScaleAuth()
 
