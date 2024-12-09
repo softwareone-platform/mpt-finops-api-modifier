@@ -48,6 +48,7 @@ cache_dir = ".cache/pytest"
 
 [tool.coverage.run]
 branch = true
+relative_files = true
 
 [tool.ruff]
 extend-exclude = [".devcontainer"]
