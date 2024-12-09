@@ -11,7 +11,7 @@ from app.core.exceptions import OptScaleAPIResponseError
 from .auth_api import build_admin_api_key_header
 
 AUTH_USERS_ENDPOINT = "/auth/v2/users"
-logger = logging.getLogger("optscale_user_api")
+logger = logging.getLogger(__name__)
 
 
 class OptScaleUserAPI:
@@ -55,7 +55,7 @@ class OptScaleUserAPI:
                 reason=response.get("data", {}).get("error", {}).get("reason", ""),
                 status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
             )
-        logger.info("User successfully created: %s", response)
+        logger.info(f"User successfully created: {response}")
         return response
 
     async def get_user_by_id(

@@ -48,16 +48,13 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
         return decoded_token
 
     except ExpiredSignatureError:
-        logger.error("Expired Signature for the")
+        logger.error("Expired Signature for the token")
     except DecodeError:
         logger.error("The token cannot be decoded")
     except InvalidTokenError:
         logger.error("The token is not valid")
     except Exception as error:
-        logger.error(
-            "General error %s occurred trying to decode the token",
-            error,
-        )
+        logger.error(f"General error occurred trying to decode the token. {error}")
 
     return None
 

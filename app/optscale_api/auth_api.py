@@ -10,7 +10,6 @@ from app.core.exceptions import OptScaleAPIResponseError, UserAccessTokenError
 
 AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
 logger = logging.getLogger(__name__)
-AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"  # nosec: B105
 
 
 def build_admin_api_key_header(admin_api_key: str) -> dict[str, str]:
@@ -56,7 +55,7 @@ class OptScaleAuth:
             endpoint=AUTH_TOKEN_ENDPOINT, headers=headers, data=payload
         )
         if response.get("error"):
-            logger.error("Failed to get an admin access token for user %s", user_id)
+            logger.error(f"Failed to get an admin access token for user {user_id}")
             raise OptScaleAPIResponseError(
                 title="Error response from OptScale",
                 reason=response.get("data", {}).get("error", {}).get("reason", ""),
