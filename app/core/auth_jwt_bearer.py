@@ -16,7 +16,7 @@ JWT_AUDIENCE = settings.audience
 JWT_ISSUER = settings.issuer
 JWT_LEEWAY = settings.leeway
 
-logger = logging.getLogger("auth_jwt")
+logger = logging.getLogger(__name__)
 
 
 def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007

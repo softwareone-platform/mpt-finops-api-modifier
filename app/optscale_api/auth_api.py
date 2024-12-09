@@ -9,7 +9,7 @@ from app.core.api_client import APIClient
 from app.core.exceptions import OptScaleAPIResponseError, UserAccessTokenError
 
 AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
-logger = logging.getLogger("optscale_auth_api")
+logger = logging.getLogger(__name__)
 
 
 def build_admin_api_key_header(admin_api_key: str) -> dict[str, str]:

@@ -1,9 +1,14 @@
+import logging
+
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from app import settings
+from app.core.api_client import LogRequestMiddleware
 from app.router.api_v1.endpoints import api_router
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title=settings.project_name,
@@ -21,6 +26,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
+app.add_middleware(LogRequestMiddleware)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8080, host="0.0.0.0", reload=True)
