@@ -28,9 +28,6 @@ class LogRequestMiddleware(BaseHTTPMiddleware):
         return response
 
 
-
-
-
 class APIClient:
     def __init__(self, base_url: str, timeout: int = API_REQUEST_TIMEOUT):
         self.base_url = base_url
