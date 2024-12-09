@@ -22,7 +22,6 @@ from app.optscale_api.helpers.auth_tokens_dependency import (
 ORG_ENDPOINT = "/restapi/v2/organizations"
 logger = logging.getLogger("optscale_org_api")
 
-TOKEN_ERROR_MESSAGE = "Failed to obtain access token for user ID: {}"
 ORG_CREATION_ERROR = "An error occurred creating an organization for user {}."
 
 ORG_FETCHING_ERROR = "An error occurred getting organizations for user {}."

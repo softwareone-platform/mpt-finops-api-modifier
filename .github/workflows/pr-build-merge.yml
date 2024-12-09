@@ -22,30 +22,26 @@ jobs:
         fetch-depth: 0
 
     - name: 'Create environment file'
-      run: touch .env
-
-    - name: "Create test environment file"
-      run: |
-          echo "API_V1_PREFIX=/api/v1" >> .env.test
-          echo "DEBUG=true" >> .env.test
-          echo "PROJECT_NAME=Test Project" >> .env.test
-          echo "VERSION=1.0.0" >> .env.test
-          echo "DESCRIPTION=Test Project Description" >> .env.test
-          echo "OPT_SCALE_API_URL=https://test.example.com/api" >> .env.test
-          echo "SECRET=testsecret" >> .env.test
-          echo "ALGORITHM=HS256" >> .env.test
-          echo "ISSUER=test_issuer" >> .env.test
-          echo "AUDIENCE=test_audience" >> .env.test
-          echo "DEFAULT_REQUEST_TIMEOUT=10" >> .env.test
-          echo "ADMIN_TOKEN=102-1020-1020-1001-10" >> .env.test
-    - name: Debug test environment file
-      run: cat .env.test
+      run: cp env.example .env
 
     - name: 'Build test containers'
       run: docker compose build app_test
 
     - name: 'Run validation & test'
-      run: docker compose run --service-ports -v $(pwd)/.env.test:/app/.env.test app_test
+      run: docker compose run --rm app_test
+
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@v4
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      with:
+        pollingTimeoutSec: 600
+      env:
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: 'Stop containers'
       if: always()

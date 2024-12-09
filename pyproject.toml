@@ -1,59 +1,59 @@
 [project]
-name = "optscale-api-modifier"
+name = "ffc-finops-api-modifier"
 version = "0.1.0"
-description = "Optscale API Modifier for SWO FinOps"
+description = "SWO FinOps For Cloud API Modifier"
 authors = [
-    {name = "SoftwareOne"},
+    {name = "SoftwareOne AG"},
 ]
 license = "Apache-2.0 license"
 readme = "README.md"
 requires-python = ">=3.12,<4"
 dependencies = [
-    "fastapi>=0.100.0,<1.0.0", # Fully compatible with Pydantic v2
-    "sqlmodel>=0.0.8,<1.0.0", # Supports Pydantic v2
-    "pydantic[email]>=2.9.2,<3.0.0",
-    "python-dotenv<2.0.0,>=1.0.1",
-    "httpx<1.0.0,>=0.27.2",
-    "pydantic-settings<3.0.0,>=2.6.0",
-    "uvicorn<1.0.0,>=0.32.0",
-    "python-json-logger<3.0.0,>=2.0.7",
-    "pyjwt<3.0.0,>=2.9.0",
-    "python-decouple<4.0,>=3.8",
-    "setuptools<76.0.0,>=75.2.0",
-    "pydevd<4.0.0,>=3.2.2",
-    "currency-codes<24.0.0,>=23.6.4",
-    "pytest>=8.3.3",
-    "black>=24.10.0",
-    "ruff>=0.7.3",
-    "bandit>=1.8.0",
+    "fastapi[standard]==0.115.*",
+    "pydantic[email]==2.10.*",
+    "python-dotenv==1.0.*",
+    "pydantic-settings==2.6.*",
+    "httpx==0.28.*",
+    "pyjwt==2.10.*",
+    "currency-codes==23.6.*",
+    "python-json-logger==2.0.*",
+    "uvicorn[standard]==0.32.*",
+    "uvloop==0.21.*",
+    "uvicorn-worker==0.2.*",
 ]
 
 [tool.uv]
 dev-dependencies = [
-    "ipdb>=0.13",
-    "mypy>=1.8",
-    "pre-commit>=3.6",
-    "pytest>=8.3.3",
-    "pytest-asyncio>=0.24.0",
-    "pytest-mock>=3.14.0",
-    "pytest-cov>=6.0.0",
-    "pytest-deadfixtures>=2.2",
-    "ruff>=0.3",
+    "pydevd>=3.2.2,<4",
+    "ipdb>=0.13,<1",
+    "mypy>=1.8,<2",
+    "pre-commit>=4.0.1,<5",
+    "pytest>=8.3.3,<9",
+    "pytest-asyncio>=0.24.0,<1",
+    "pytest-mock>=3.14.0,<4",
+    "pytest-cov>=6.0.0,<7",
+    "pytest-deadfixtures>=2.2,<3",
+    "ruff>=0.3,<1",
+    "bandit>=1.8.0,<2",
+    "ipython>=8.30.0,<9",
 ]
-
 
 [tool.pytest.ini_options]
 testpaths = "tests"
 pythonpath = "."
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
+addopts = "--cov=app --cov-report=term-missing --cov-report=html --cov-report=xml"
+cache_dir = ".cache/pytest"
 
 [tool.coverage.run]
 branch = true
+relative_files = true
 
 [tool.ruff]
 extend-exclude = [".devcontainer"]
 output-format = "full"
+cache-dir = ".cache/ruff"
 
 [tool.ruff.lint]
 
@@ -66,11 +66,11 @@ select = [
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade,
     "PT",  # flake8-pytest-style
-    "T10",  # flake8-pytest-style
+    "T10",  # flake8-debugger
+    # enable when fixed "G", # flake8-logging-format
 ]
 ignore = [
     "PT001", # Use `@pytest.fixture()` over `@pytest.fixture`
-    "PT004", # fixture '{name}' does not return anything, add leading underscore
     "PT011", # pytest.raises({exception}) is too broad, set the match parameter or use a more specific exception
     "PT023", # @pytest.mark.parametrize` is missing required arguments
     "B008",  # do not perform function calls in argument defaults
@@ -82,3 +82,8 @@ max-line-length = 100
 
 [tool.mypy]
 warn_no_return = false
+ignore_missing_imports = true
+cache_dir = ".cache/mypy"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]

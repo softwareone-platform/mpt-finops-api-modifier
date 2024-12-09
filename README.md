@@ -10,45 +10,21 @@ Service that provides custom logic for:
 4. Prevent Creation of Kubernetes, Alibaba Cloud and Databricks datasources
 5. Handle the user invitation flow
 
+# Create you .env file
+
+You can use the `env.example` as a bases to setup your running environment and customize it according to your needs.
+
 # Run tests
 
-`docker build -f test.Dockerfile -t optscale_api_modifier_test .`
-
-`docker run --rm optscale_api_modifier_test  `
-
-or 
-
-`./build_and_run_tests`
+`docker compose run --rm  app_test`
 
 # Run for Development
 
-`docker build -f dev.Dockerfile -t optscale_api_modifier .`
-`docker run --rm optscale_api_modifier `
+`docker compose up app`
 
-# Create you .env file
+# Build production image
 
-```
-# BASE
-API_V1_PREFIX="/v1/admin"
-PUBLIC_URL="http://localhost:8000"
-DEBUG=True
-PROJECT_NAME="CloudSpend API Modifier"
-VERSION="0.1.0"
-DESCRIPTION="Service to provide custom users and org management"
-# CLoudSpend API
-OPT_SCALE_API_URL="https://your-optscaledomain.com"
-# JWT TOKEN
-SECRET="my_super_secret_here"
-ALGORITHM=HS256
-ISSUER="SWO"
-AUDIENCE="modifier"
-LEEWAY=30.0
-# API Client
-DEFAULT_REQUEST_TIMEOUT=10
-# Admin Token
-ADMIN_TOKEN="your admin token here"
+To build the production image please use the `prod.Dockefile` dockerfile.
 
-# DATABASE
-DB_ASYNC_CONNECTION_STR="postgresql+asyncpg://postgres:mysecurepass@localhost:5433/your_dev_db_here"
-DB_ASYNC_TEST_CONNECTION_STR="postgresql+asyncpg://postgres:mysecurepass@localhost:5434/your_test_db_here"
-```
+> [!IMPORTANT]
+> Developers must take care of keep in sync `dev.Dockerfile` and `prod.Dockerfile`.

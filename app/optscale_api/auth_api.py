@@ -10,6 +10,7 @@ from app.core.exceptions import OptScaleAPIResponseError, UserAccessTokenError
 
 AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
 logger = logging.getLogger(__name__)
+AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"  # nosec: B105
 
 
 def build_admin_api_key_header(admin_api_key: str) -> dict[str, str]:
