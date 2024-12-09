@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends
 from fastapi import status as http_status
 from starlette.responses import JSONResponse
@@ -10,7 +8,6 @@ from app.core.exceptions import OptScaleAPIResponseError, handle_exception
 from app.optscale_api.users_api import OptScaleUserAPI
 from app.users.model import CreateUserData, CreateUserResponse
 
-logger = logging.getLogger("api.users")
 router = APIRouter()
 
 

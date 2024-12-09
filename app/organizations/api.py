@@ -1,5 +1,3 @@
-import logging
-
 from fastapi import APIRouter, Depends
 from fastapi import status as http_status
 from starlette.responses import JSONResponse
@@ -18,7 +16,6 @@ from app.organizations.model import (
     OptScaleOrganizationResponse,
 )
 
-logger = logging.getLogger("api.organizations")
 router = APIRouter()
 
 

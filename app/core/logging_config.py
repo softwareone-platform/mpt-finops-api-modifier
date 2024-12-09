@@ -7,7 +7,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "json": {
-            "format": "%(asctime)s %(levelname)s %(message)s",
+            "format": "%(asctime)s - %(name) - %(levelname)s - %(message)s",
             "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
         }
     },
