@@ -1,16 +1,34 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import httpx
 from httpx import Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 from app import settings
 
-logger = logging.getLogger("api_client")
+logger = logging.getLogger(__name__)
 
 API_REQUEST_TIMEOUT = settings.default_request_timeout
+
+
+class LogRequestMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        logger.info(f"Request: {request.method} {request.url}")
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logger.info(
+            f"Response: status_code={response.status_code}, process_time={process_time:.2f}s"
+        )
+        return response
+
+
+
 
 
 class APIClient:
