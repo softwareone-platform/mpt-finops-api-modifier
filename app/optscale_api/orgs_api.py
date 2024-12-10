@@ -20,7 +20,7 @@ from app.optscale_api.helpers.auth_tokens_dependency import (
 )
 
 ORG_ENDPOINT = "/restapi/v2/organizations"
-logger = logging.getLogger("optscale_org_api")
+logger = logging.getLogger(__name__)
 
 ORG_CREATION_ERROR = "An error occurred creating an organization for user {}."
 
@@ -75,7 +75,7 @@ class OptScaleOrgAPI:
 
             if response.get("error"):
                 logger.error(
-                    "Failed to get the org data from OptScale for the user %s", user_id
+                    f"Failed to get the org data from OptScale for the user {user_id}"
                 )
                 raise OptScaleAPIResponseError(
                     title="Error response from OptScale",
@@ -84,16 +84,15 @@ class OptScaleOrgAPI:
                         "status_code", http_status.HTTP_403_FORBIDDEN
                     ),
                 )
-            logger.info("Successfully fetched user's org %s", response)
+            logger.info(f"Successfully fetched user's org {response}")
             return response
 
         except UserAccessTokenError as error:
-            logger.error("Failed to get access token for user %s: %s", user_id, error)
+            logger.error(f"Failed to get access token for user {user_id}: {error}")
             raise
         except Exception as error:
             logger.error(
-                "Exception occurred accessing an organization on OptScale: %s",
-                error,
+                f"Exception occurred accessing an organization on OptScale: {error}"
             )
             raise
 
@@ -134,7 +133,7 @@ class OptScaleOrgAPI:
         """
 
         try:
-            logger.info("Fetching access token for user: %s", user_id)
+            logger.info(f"Fetching access token for user: {user_id}")
             user_access_token = await get_user_access_token(
                 user_id=user_id, admin_api_key=admin_api_key, auth_client=auth_client
             )
@@ -142,7 +141,7 @@ class OptScaleOrgAPI:
             payload = {"name": org_name, "currency": currency}
             headers = build_bearer_token_header(bearer_token=user_access_token)
             logger.info(
-                "Creating organization for user: %s with payload %s:", user_id, payload
+                f"Creating organization for user: {user_id} with payload {payload}"
             )
             response = await self.api_client.post(
                 endpoint=ORG_ENDPOINT, headers=headers, data=payload
@@ -158,16 +157,15 @@ class OptScaleOrgAPI:
                     ),
                 )
 
-            logger.info("Successfully created organization for user: %s", user_id)
+            logger.info(f"Successfully created organization for user: {user_id}")
             return response
 
         except UserAccessTokenError as error:
-            logger.error("Failed to get access token for user %s: %s", user_id, error)
+            logger.error(f"Failed to get access token for user {user_id}: {error}")
             raise
 
         except Exception as error:
             logger.error(
-                "Exception occurred creating an organization on OptScale: %s",
-                error,
+                f"Exception occurred creating an organization on OptScale: {error}"
             )
             raise
