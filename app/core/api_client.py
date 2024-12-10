@@ -79,7 +79,7 @@ class APIClient:
                         "despite Content-Type header indicating JSON."
                     )
                     return {
-                        "status_code": response.status_code,
+                        "status_code": 403,
                         "error": "Invalid JSON format in response",
                     }
             else:
@@ -87,18 +87,18 @@ class APIClient:
                 logger.warning(
                     "Response is not JSON as indicated by Content-Type header."
                 )
-                return {"status_code": response.status_code, "error": response.text}
+                return {"status_code": 403, "error": "Response is not JSON"}
 
         except httpx.RequestError as error:
             # Log and handle connection-related errors
             logger.error(
                 f"An error occurred while "
-                f"requesting {error.request.url!r}. Error: {str(error)}"
+                f"requesting {error.request.url!r}. Error: {error}"
             )
             return {
                 "status_code": 503,  # Service Unavailable
                 "data": None,
-                "error": f"Connection error: {str(error)}",
+                "error": f"Connection error: {error}",
             }
         except httpx.HTTPStatusError as error:
             # Log and handle HTTP errors (non-2xx responses)
@@ -118,7 +118,7 @@ class APIClient:
             return {
                 "status_code": 500,  # Internal Server Error
                 "data": None,
-                "error": f"Unexpected error: {str(error)}",
+                "error": f"Unexpected error: {error}",
             }
 
     async def get(

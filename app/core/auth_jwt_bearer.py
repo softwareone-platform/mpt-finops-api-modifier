@@ -5,7 +5,12 @@ import jwt
 from fastapi import Request
 from fastapi import status as http_status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jwt.exceptions import DecodeError, ExpiredSignatureError, InvalidTokenError
+from jwt.exceptions import (
+    DecodeError,
+    ExpiredSignatureError,
+    InvalidTokenError,
+    MissingRequiredClaimError,
+)
 
 from app import settings
 from app.core.error_formats import create_error_response
@@ -51,11 +56,10 @@ def decode_jwt(token: str) -> Optional[dict]:  # noqa: UP007
         logger.error("Expired Signature for the token")
     except DecodeError:
         logger.error("The token cannot be decoded")
-    except InvalidTokenError:
-        logger.error("The token is not valid")
-    except Exception as error:
-        logger.error(f"General error occurred trying to decode the token. {error}")
-
+    except MissingRequiredClaimError as error:
+        logger.error(f"Invalid Token: {error}")
+    except InvalidTokenError as error:
+        logger.error(f"The token is not valid {error}")
     return None
 
 
