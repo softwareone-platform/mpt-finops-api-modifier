@@ -1,16 +1,31 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import httpx
 from httpx import Response
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
 
 from app import settings
 
-logger = logging.getLogger("api_client")
+logger = logging.getLogger(__name__)
 
 API_REQUEST_TIMEOUT = settings.default_request_timeout
+
+
+class LogRequestMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        logger.info(f"Request: {request.method} {request.url}")
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logger.info(
+            f"Response: status_code={response.status_code}, process_time={process_time:.2f}s"
+        )
+        return response
 
 
 class APIClient:
@@ -64,7 +79,7 @@ class APIClient:
                         "despite Content-Type header indicating JSON."
                     )
                     return {
-                        "status_code": response.status_code,
+                        "status_code": 403,
                         "error": "Invalid JSON format in response",
                     }
             else:
@@ -72,26 +87,24 @@ class APIClient:
                 logger.warning(
                     "Response is not JSON as indicated by Content-Type header."
                 )
-                return {"status_code": response.status_code, "error": response.text}
+                return {"status_code": 403, "error": "Response is not JSON"}
 
         except httpx.RequestError as error:
             # Log and handle connection-related errors
             logger.error(
-                "An error occurred while requesting %r. Error: %s",
-                error.request.url,
-                str(error),
+                f"An error occurred while "
+                f"requesting {error.request.url!r}. Error: {error}"
             )
             return {
                 "status_code": 503,  # Service Unavailable
-                "data": None,
-                "error": f"Connection error: {str(error)}",
+                "data": {},
+                "error": f"Connection error: {error}",
             }
         except httpx.HTTPStatusError as error:
             # Log and handle HTTP errors (non-2xx responses)
             logger.error(
-                "Error response %s while requesting %r.",
-                error.response.status_code,
-                error.request.url,
+                f"Error response {error.response.status_code} "
+                f"while requesting {error.request.url!r}."
             )
 
             return {
@@ -101,11 +114,11 @@ class APIClient:
             }
         except Exception as error:
             # Catch any other unexpected errors
-            logger.error("An unexpected error occurred: %s", str(error))
+            logger.error(f"An unexpected error occurred: {str(error)}")
             return {
                 "status_code": 500,  # Internal Server Error
-                "data": None,
-                "error": f"Unexpected error: {str(error)}",
+                "data": {},
+                "error": f"Unexpected error: {error}",
             }
 
     async def get(

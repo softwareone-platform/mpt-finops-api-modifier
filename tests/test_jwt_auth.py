@@ -1,3 +1,4 @@
+import logging
 import time
 
 import jwt
@@ -44,30 +45,35 @@ class MockRequest:
         self.headers = {"Authorization": authorization} if authorization else {}
 
 
-class TestDecodeJWT:
-    def test_decode_jwt_valid_token(self):
-        subject = "test"
-        token = create_jwt_token(subject=SUBJECT)
+def test_decode_jwt_valid_token():
+    subject = "test"
+    token = create_jwt_token(subject=SUBJECT)
 
-        decoded_token = decode_jwt(token)
-        assert decoded_token is not None
-        assert decoded_token["sub"] == subject
-        assert decoded_token["iss"] == JWT_ISSUER
-        assert decoded_token["aud"] == JWT_AUDIENCE
+    decoded_token = decode_jwt(token)
+    assert decoded_token is not None
+    assert decoded_token["sub"] == subject
+    assert decoded_token["iss"] == JWT_ISSUER
+    assert decoded_token["aud"] == JWT_AUDIENCE
 
-    def test_decode_jwt_expired_token(self):
+
+def test_decode_jwt_expired_token_raises_expired_signature_error(caplog):
+    with caplog.at_level(logging.ERROR):
         token = create_jwt_token(subject=SUBJECT, expires_in=-30)  # Expired token
 
         decoded_token = decode_jwt(token)
         assert decoded_token is None
+        assert "Expired Signature for the token" == caplog.messages[0]
 
-    def test_decode_jwt_grace_period(self):
-        # the default leeway value is 30sec
-        token = create_jwt_token(subject=SUBJECT, expires_in=-29)
-        decoded_token = decode_jwt(token)
-        assert decoded_token is not None
 
-    def test_invalid_signature(self):
+def test_decode_jwt_grace_period():
+    # the default leeway value is 30sec
+    token = create_jwt_token(subject=SUBJECT, expires_in=-29)
+    decoded_token = decode_jwt(token)
+    assert decoded_token is not None
+
+
+def test_invalid_signature_raises_decode_error(caplog):
+    with caplog.at_level(logging.ERROR):
         # modify a token to invalidate the signature
         token = create_jwt_token(subject=SUBJECT)
         invalid_token = token + "AnotherOneBitestheDust"
@@ -80,8 +86,11 @@ class TestDecodeJWT:
         # Decode the token and expect None due to invalid token
         decoded_token = decode_jwt(invalid_token_2)
         assert decoded_token is None
+        assert "The token cannot be decoded" == caplog.messages[0]
 
-    def test_decode_error(self):
+
+def test_invalid_token_raises_decode_error(caplog):
+    with caplog.at_level(logging.ERROR):
         # Provide an invalid token format
         invalid_token = "this.is.not.a.jwt"
         # Decode the token
@@ -89,56 +98,88 @@ class TestDecodeJWT:
 
         # Assert that None is returned due to decode error
         assert decoded_token is None
+        assert "The token cannot be decoded" == caplog.messages[0]
 
-    def test_decode_jwt_missing_issuer(self):
-        payload = {
-            "sub": SUBJECT,
-            "aud": JWT_AUDIENCE,
-            "iat": int(time.time()),
-            "nbf": int(time.time()),
-            "exp": int(time.time()) + 3600,
-        }
+
+def test_decode_jwt_missing_issuer_raises_missing_required_claim_error(caplog):
+    payload = {
+        "sub": SUBJECT,
+        "aud": JWT_AUDIENCE,
+        "iat": int(time.time()),
+        "nbf": int(time.time()),
+        "exp": int(time.time()) + 3600,
+    }
+    with caplog.at_level(logging.ERROR):
         token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
         decoded_token = decode_jwt(token)
         assert decoded_token is None
+        assert 'Invalid Token: Token is missing the "iss" claim' == caplog.messages[0]
 
-    def test_decode_jwt_missing_audience(self):
-        payload = {
-            "sub": SUBJECT,
-            "iss": JWT_ISSUER,
-            "iat": int(time.time()),
-            "nbf": int(time.time()),
-            "exp": int(time.time()) + 3600,
-        }
+
+def test_decode_jwt_missing_audience_raises_missing_required_claim_error(caplog):
+    payload = {
+        "sub": SUBJECT,
+        "iss": JWT_ISSUER,
+        "iat": int(time.time()),
+        "nbf": int(time.time()),
+        "exp": int(time.time()) + 3600,
+    }
+    with caplog.at_level(logging.ERROR):
         token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
         decoded_token = decode_jwt(token)
         assert decoded_token is None
+        assert 'Invalid Token: Token is missing the "aud" claim' == caplog.messages[0]
 
-    def test_missing_expires_key(self):
-        # Create a token without the "exp" key
-        payload = {
-            "sub": SUBJECT,
-            "iss": JWT_ISSUER,
-            "iat": int(time.time()),
-            "nbf": int(time.time()),
-        }
+
+def test_missing_expires_key_raises_missing_required_claim_error(caplog):
+    # Create a token without the "exp" key
+    payload = {
+        "sub": SUBJECT,
+        "iss": JWT_ISSUER,
+        "iat": int(time.time()),
+        "nbf": int(time.time()),
+    }
+    with caplog.at_level(logging.ERROR):
         token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
         decoded_token = decode_jwt(token)
         assert decoded_token is None
+        assert 'Invalid Token: Token is missing the "exp" claim' == caplog.messages[0]
 
-    def test_missing_nbf_key(self):
-        # Create a token without the "nbf" key
-        payload = {
-            "sub": SUBJECT,
-            "iss": JWT_ISSUER,
-            "iat": int(time.time()),
-            "exp": int(time.time()) + 3600,
-        }
+
+def test_missing_nbf_key_raises_missing_required_claim_error(caplog):
+    # Create a token without the "nbf" key
+    payload = {
+        "sub": SUBJECT,
+        "iss": JWT_ISSUER,
+        "iat": int(time.time()),
+        "exp": int(time.time()) + 3600,
+    }
+    with caplog.at_level(logging.ERROR):
         token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
         decoded_token = decode_jwt(token)
         assert decoded_token is None
+        assert 'Invalid Token: Token is missing the "nbf" claim' == caplog.messages[0]
+
+
+def test_generic_exception_raises_invalid_token_error(caplog):
+    # Create a token without the "nbf" key
+    payload = {
+        "sub": SUBJECT,
+        "aud": JWT_AUDIENCE,
+        "iat": int(time.time()),
+        "nbf": int(time.time()),
+        "exp": int(time.time()) + 3600,
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm="HS512")
+    with caplog.at_level(logging.ERROR):  # noqa: PT012
+        decoded_token = decode_jwt(token=token)
+        assert decoded_token is None
+        assert (
+            "The token is not valid The specified alg value is not allowed"
+            == caplog.messages[0]
+        )
 
 
 class TestVerifyJWT:

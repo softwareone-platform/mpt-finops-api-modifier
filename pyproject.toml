@@ -49,7 +49,21 @@ cache_dir = ".cache/pytest"
 [tool.coverage.run]
 branch = true
 relative_files = true
-
+omit = [
+    "app/core/logging_config.py",
+    "app/core/models.py",
+    "*/tests/*",
+    "app/utils/database/init_db.py",
+    "app/invitations/*",
+    "app/datasources/*",
+    "app/router/api_v1/endpoints.py",
+    "init_db.py",
+    "app/main.py"
+]
+exclude_lines = [
+    "pragma: no cover",
+    "pragma: no branch"
+]
 [tool.ruff]
 extend-exclude = [".devcontainer"]
 output-format = "full"

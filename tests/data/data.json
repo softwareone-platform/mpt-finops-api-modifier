@@ -61,7 +61,7 @@
       "payload": {
         "org_name": "Super Hero Inc",
         "user_id": "10102-1001-111002-10010",
-          "currency": "US"
+        "currency": "US"
       },
       "response": {
         "deleted_at": 0,
@@ -73,6 +73,36 @@
         "currency": "USD",
         "cleaned_at": 0
       }
+    },
+    "case_get": {
+      "response": {
+        "organizations": [
+          {
+            "deleted_at": 0,
+            "created_at": 1733244589,
+            "id": "b57b9964-7046-4e20-812c-01ab52cf4661",
+            "name": "My Big ORG ",
+            "pool_id": "f134686c-6bf7-47ea-9ed7-05c84c3de62b",
+            "is_demo": false,
+            "currency": "USD",
+            "cleaned_at": 0
+          }
+        ]
+      }
+    }
+  },
+  "auth_token": {
+    "create": {
+      "data": {
+        "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0y\"  # noqa: E501\n            \"Nzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxNDA3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2l\"\n            \"zdGVyOkZhbHNlCjAwMWFjaWQgcHJvdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI",
+        "digest": "0a498f9f0aeadd67a59b93cbde528a45",
+        "user_id": "f0bd0c4a-7c55-45b7-8b58-27740e38789a",
+        "created_at": "2024-10-28T18:38:21",
+        "valid_until": "2024-11-04T18:38:21",
+        "ip": "1.2.3.4",
+        "user_email": "peter.parker@iamspiderman.com"
+      },
+      "status": 201
     }
   }
 }

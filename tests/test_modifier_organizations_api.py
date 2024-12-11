@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from httpx import AsyncClient
 
+from app.core.exceptions import OptScaleAPIResponseError, UserAccessTokenError
 from app.optscale_api.orgs_api import OptScaleOrgAPI
 from tests.helpers.jwt import create_jwt_token
 
@@ -139,3 +140,67 @@ async def test_get_org_no_authentication(async_client: AsyncClient, test_data: d
         got.get("detail").get("errors").get("reason") == "Invalid authorization scheme."
     )
     assert "traceId" in got.get("detail")
+
+
+async def test_get_orgs_valid_response(
+    async_client: AsyncClient, mock_get_org, test_data: dict
+):
+    jwt_token = create_jwt_token()
+    mocked_response = test_data["org"]["case_get"]["response"]
+    mock_get_org.return_value = mocked_response
+    response = await async_client.get(
+        "/organizations?user_id=101010011",
+        headers={"Authorization": f"Bearer {jwt_token}"},
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "exception, expected_status, expected_title, expected_reason",  # noqa: PT006
+    [
+        (
+            OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason="test reason",
+                status_code=403,
+            ),
+            403,
+            "Error response from OptScale",
+            "test reason",
+        ),
+        (
+            UserAccessTokenError("Access Token User ID mismatch"),
+            403,
+            "Exception occurred",
+            "No details available",
+        ),
+        (
+            Exception("generic exception"),
+            403,
+            "Exception occurred",
+            "No details available",
+        ),
+    ],
+)
+async def test_get_orgs_exception_handling(
+    async_client: AsyncClient,
+    mock_get_org,
+    exception,
+    expected_status,
+    expected_title,
+    expected_reason,
+):
+    jwt_token = create_jwt_token()
+    mock_get_org.side_effect = exception
+
+    response = await async_client.get(
+        "/organizations?user_id=101010011",
+        headers={"Authorization": f"Bearer {jwt_token}"},
+    )
+    response_json = response.json()
+
+    assert response.status_code == expected_status
+    assert response_json.get("detail").get("title") == expected_title
+    assert response_json.get("detail").get("errors").get("reason") == expected_reason
