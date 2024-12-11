@@ -58,7 +58,11 @@ omit = [
     "app/datasources/*",
     "app/router/api_v1/endpoints.py",
     "init_db.py",
-    "main.py"
+    "app/main.py"
+]
+exclude_lines = [
+    "pragma: no cover",
+    "pragma: no branch"
 ]
 [tool.ruff]
 extend-exclude = [".devcontainer"]
