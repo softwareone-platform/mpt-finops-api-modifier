@@ -113,7 +113,7 @@ async def test_make_request_http_status_error(
 
     assert response["status_code"] == 404
     assert response["data"] == {"detail": "Not Found"}
-    assert response["error"] == 'HTTP error: 404 - {"detail": "Not Found"}'
+    assert response["error"] == 'HTTP error: 404 - {"detail":"Not Found"}'
 
 
 @pytest.mark.asyncio
