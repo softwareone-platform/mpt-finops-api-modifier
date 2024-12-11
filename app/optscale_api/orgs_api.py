@@ -151,7 +151,9 @@ class OptScaleOrgAPI:
                 logger.error(ORG_CREATION_ERROR.format(user_id))
                 raise OptScaleAPIResponseError(
                     title="Error response from OptScale",
-                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                    reason=response.get("data", {})
+                    .get("error", {})
+                    .get("reason", "No details available"),  # noqa: E501
                     status_code=response.get(
                         "status_code", http_status.HTTP_403_FORBIDDEN
                     ),

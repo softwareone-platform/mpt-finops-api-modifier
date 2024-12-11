@@ -86,7 +86,7 @@ async def test_make_request_http_request_error(
     response = await api_client._make_request("GET", "/endpoint")
 
     assert response["status_code"] == 503
-    assert response["data"] is None
+    assert response["data"] == {}
     assert response["error"] == "Connection error: Connection failed"
 
 
@@ -127,7 +127,7 @@ async def test_make_request_generic_exception_logging(mock_request, caplog, api_
     with caplog.at_level("ERROR"):
         response = await api_client._make_request("GET", "/endpoint")
         assert response["status_code"] == 500
-        assert response["data"] is None
+        assert response["data"] == {}
         assert response["error"] == "Unexpected error: Something went wrong"
 
     # Assertions for logging

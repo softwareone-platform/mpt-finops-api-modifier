@@ -175,6 +175,42 @@ async def test_get_user_org_response_error(
             )
 
 
+async def test_get_user_orgs_exceptions_handling(
+    optscale_org_api_instance,
+    mock_api_client_get,
+    mock_auth_token,
+    optscale_auth_api,
+    caplog,
+):
+    mock_api_client_get.side_effect = UserAccessTokenError("Access Token exception")
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(UserAccessTokenError, match="Access Token exception"):
+            await optscale_org_api_instance.get_user_org(
+                user_id="test_user",
+                admin_api_key="test_key",
+                auth_client=optscale_auth_api,
+            )
+    # Verify the log entry
+    assert (
+        "Failed to get access token for user test_user: Access Token exception"
+        in caplog.text
+    ), "Expected error log message for the exception"  # noqa: E501
+
+    mock_api_client_get.side_effect = Exception("Generic Exception")
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(Exception, match="Generic Exception"):
+            await optscale_org_api_instance.get_user_org(
+                user_id="test_user",
+                admin_api_key="test_key",
+                auth_client=optscale_auth_api,
+            )
+    # Verify the log entry
+    assert (
+        "Failed to get access token for user test_user: Access Token exception"
+        in caplog.text
+    ), "Expected error log message for the exception"  # noqa: E501
+
+
 async def test_create_org_access_token_exception_handling(
     optscale_org_api_instance,
     mock_api_client_post,
@@ -184,7 +220,6 @@ async def test_create_org_access_token_exception_handling(
 ):
     # Simulate a UserAccessTokenError exception  in `create_user_org`
     mock_api_client_post.side_effect = UserAccessTokenError("Access Token exception")
-    # Capture logs
     with caplog.at_level(logging.ERROR):
         with pytest.raises(UserAccessTokenError, match="Access Token exception"):
             await optscale_org_api_instance.create_user_org(
@@ -226,17 +261,35 @@ async def test_create_org_user_org_creation_exception_handling(
     ), "Expected error log message for the exception"  # noqa: E501
 
 
-async def test_create_org_user_org_exception_handling(
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "side_effect, expected_exception, expected_message",  # noqa: PT006
+    [
+        (
+            Exception("Test Exception"),
+            Exception,
+            "Exception occurred creating an organization on OptScale: Test Exception",
+        ),
+        (
+            UserAccessTokenError("User Access Token not valid"),
+            UserAccessTokenError,
+            "Failed to get access token for user test_user: User Access Token not valid",
+        ),
+    ],
+)
+async def test_create_org_user_exception_handling(
     optscale_org_api_instance,
     mock_api_client_post,
     mock_auth_token,
     optscale_auth_api,
     caplog,
+    side_effect,
+    expected_exception,
+    expected_message,
 ):
-    # Simulate a generic Exception exception  in `create_user_org`
-    mock_api_client_post.side_effect = Exception("Test Exception")
+    mock_api_client_post.side_effect = side_effect
     with caplog.at_level(logging.ERROR):
-        with pytest.raises(Exception, match=""):
+        with pytest.raises(expected_exception, match=str(side_effect)):
             await optscale_org_api_instance.create_user_org(
                 org_name="MyOrg",
                 currency="USD",
@@ -244,8 +297,44 @@ async def test_create_org_user_org_exception_handling(
                 admin_api_key="test_key",
                 auth_client=optscale_auth_api,
             )
-    # Verify the log entry
-    assert (
-        "Exception occurred creating an organization on OptScale: Test Exception"
-        in caplog.text
-    ), "Expected error log message for the exception"  # noqa: E501
+    assert any(expected_message in record.message for record in caplog.records)
+
+
+async def test_create_org_user_response_error(
+    optscale_org_api_instance,
+    mock_api_client_post,
+    mock_auth_token,
+    optscale_auth_api,
+    caplog,
+):
+    mock_api_client_post.return_value = {
+        "status_code": 403,
+        "error": "Invalid JSON format in response",
+    }
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(OptScaleAPIResponseError) as exc_info:
+            await optscale_org_api_instance.create_user_org(
+                org_name="MyOrg",
+                currency="USD",
+                user_id="test_user",
+                admin_api_key="test_key",
+                auth_client=optscale_auth_api,
+            )
+
+        exception = exc_info.value
+        assert exception.title == "Error response from OptScale"
+        assert exception.reason == "No details available"
+        assert exception.status_code == 403
+
+        # check the logging message printed by the create_user_org
+        assert any(
+            "An error occurred creating an organization for user test_user."
+            in record.message
+            for record in caplog.records
+        )
+        # check the logging message printed by the OptScaleAPIResponseError
+        assert any(
+            "Exception occurred creating an organization on OptScale: Error response from OptScale"
+            in record.message
+            for record in caplog.records
+        )

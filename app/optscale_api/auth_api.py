@@ -58,18 +58,22 @@ class OptScaleAuth:
             logger.error(f"Failed to get an admin access token for user {user_id}")
             raise OptScaleAPIResponseError(
                 title="Error response from OptScale",
-                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                reason=response.get("data", {})
+                .get("error", {})
+                .get("reason", "No details available"),  # noqa: E501
                 status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
             )
 
         if response.get("data", {}).get("user_id", 0) != user_id:
+            unmatched_user_id = response.get("data", {}).get("user_id", 0)
             logger.error(
                 f"User ID mismatch: requested {user_id}, "
-                f"received {response.get('user_id')}"
+                f"received {unmatched_user_id}"
             )
             raise UserAccessTokenError("Access Token User ID mismatch")
         token = response.get("data", {}).get("token")
         if token is None:
+            logger.error("Token not found in the response.")
             raise UserAccessTokenError("Token not found in the response.")
         logger.info("Admin Access Token successfully obtained")
         return token

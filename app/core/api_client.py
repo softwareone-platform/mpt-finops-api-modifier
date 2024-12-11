@@ -97,7 +97,7 @@ class APIClient:
             )
             return {
                 "status_code": 503,  # Service Unavailable
-                "data": None,
+                "data": {},
                 "error": f"Connection error: {error}",
             }
         except httpx.HTTPStatusError as error:
@@ -117,7 +117,7 @@ class APIClient:
             logger.error(f"An unexpected error occurred: {str(error)}")
             return {
                 "status_code": 500,  # Internal Server Error
-                "data": None,
+                "data": {},
                 "error": f"Unexpected error: {error}",
             }
 
