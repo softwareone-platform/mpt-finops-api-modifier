@@ -67,6 +67,7 @@ async def create_user(data: CreateUserData, user_api: OptScaleUserAPI = Depends(
             display_name=data.display_name,
             password=data.password,
             admin_api_key=settings.admin_token,
+            verified=True,
         )
         return JSONResponse(
             status_code=response.get("status_code", http_status.HTTP_201_CREATED),

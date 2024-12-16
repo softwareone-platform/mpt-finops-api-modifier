@@ -25,10 +25,13 @@ class OptScaleUserAPI:
         display_name: str,
         password: str,
         admin_api_key: str,
+        verified: bool = False,
     ) -> dict[str, str] | Exception:
         """
         Creates a new user in the system.
 
+        :param verified: if verified is True, an access token will be
+        generated for the registered user. Otherwise, the token will be None
         :param admin_api_key: the secret admin API key
         :param email: The email of the user.
         :param display_name: The display name of the user
@@ -42,7 +45,7 @@ class OptScaleUserAPI:
             "email": email,
             "display_name": display_name,
             "password": password,
-            "verified": True,
+            "verified": verified,
         }
         headers = build_admin_api_key_header(admin_api_key=admin_api_key)
         response = await self.api_client.post(
