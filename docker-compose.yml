@@ -84,7 +84,7 @@ services:
       dockerfile: dev.Dockerfile
     image: api-modifier-dev:local
     working_dir: /app
-    command: bash -c "uv run bandit -c pyproject.toml -r ."
+    command: bash -c "uv run bandit -c pyproject.toml -r . -f json -o bandit.json"
     volumes:
       - .:/app
     env_file:

@@ -5,8 +5,8 @@ description = "SWO FinOps For Cloud API Modifier"
 authors = [
     {name = "SoftwareOne AG"},
 ]
-license = "Apache-2.0 license"
-readme = "README.md"
+license = {file = "LICENSE.txt"}
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.12,<4"
 dependencies = [
     "fastapi[standard]==0.115.*",
@@ -60,10 +60,14 @@ omit = [
     "init_db.py",
     "app/main.py"
 ]
+
+[tool.coverage.report]
+show_missing = true
 exclude_lines = [
     "pragma: no cover",
     "pragma: no branch"
 ]
+
 [tool.ruff]
 extend-exclude = [".devcontainer"]
 output-format = "full"

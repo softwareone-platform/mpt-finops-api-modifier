@@ -8,7 +8,7 @@ from app import settings
 from app.core.api_client import APIClient
 from app.core.exceptions import OptScaleAPIResponseError, UserAccessTokenError
 
-AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"
+AUTH_TOKEN_ENDPOINT = "/auth/v2/tokens"  # nosec B105
 logger = logging.getLogger(__name__)
 
 
