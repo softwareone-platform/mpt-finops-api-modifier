@@ -30,6 +30,9 @@ jobs:
     - name: 'Run validation & test'
       run: docker compose run --rm app_test
 
+    - name: 'Run bandit security scan'
+      run: docker compose run --rm bandit
+
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@v4
       env:
