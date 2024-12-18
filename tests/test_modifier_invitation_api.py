@@ -92,6 +92,7 @@ async def test_decline_invitation(async_client: AsyncClient, mock_decline_invita
     response = await async_client.post(
         "/invitations/users/invites/bf9f6c28-53c5-40ab-b530-4850ca5fc27f/decline",
         headers={"Authorization": "Bearer valid_token"},
+        json={"user_id": "b57b9964-7046-4e20-812c-01ab52cf4661"},
     )  # noqa: E501
     assert response.status_code == 204
     mock_decline_invitation.assert_called_once_with(
@@ -110,6 +111,7 @@ async def test_decline_invitation_handle_exception(
         # Send request with valid JWT token
         response = await async_client.post(
             "/invitations/users/invites/bf9f6c28-53c5-40ab-b530-4850ca5fc27f/decline",
+            json={"user_id": "b57b9964-7046-4e20-812c-01ab52cf4661"},
             headers={"Authorization": "Bearer valid_token"},
         )
 

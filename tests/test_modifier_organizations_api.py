@@ -11,7 +11,9 @@ from tests.helpers.jwt import create_jwt_token
 
 @pytest.fixture
 def mock_get_org():
-    patcher = patch.object(OptScaleOrgAPI, "get_user_org", new=AsyncMock())
+    patcher = patch.object(
+        OptScaleOrgAPI, "access_user_org_list_with_admin_key", new=AsyncMock()
+    )
     mock = patcher.start()
     yield mock
     patcher.stop()

@@ -41,3 +41,22 @@ class OptScaleInvitationAPI:
             )
         logger.info(f"Invitation {invitation_id} has been declined")
         return response
+
+    async def get_list_of_invitations(self, user_access_token: str):
+        """
+
+        :param user_access_token:
+        :return:
+        """
+        headers = build_bearer_token_header(bearer_token=user_access_token)
+        response = await self.api_client.get(
+            endpoint=INVITATION_ENDPOINT, headers=headers
+        )
+        if response.get("error"):
+            logger.error("Failed to get list of invitations.")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
+            )
+        return response

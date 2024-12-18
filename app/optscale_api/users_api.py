@@ -103,3 +103,18 @@ class OptScaleUserAPI:
             )
         logger.info(f"User Successfully fetched : {response}")
         return response
+
+    async def delete_user(self, user_id: str, admin_api_key: str):
+        headers = build_admin_api_key_header(admin_api_key=admin_api_key)
+        response = await self.api_client.delete(
+            endpoint=AUTH_USERS_ENDPOINT + f"/{user_id}", headers=headers
+        )
+        if response.get("error"):
+            logger.error(f"Failed to delete the user {user_id} from OptScale")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_404_NOT_FOUND),
+            )
+        logger.info(f"User {user_id} successfully deleted")
+        return response

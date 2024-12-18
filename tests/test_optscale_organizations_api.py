@@ -142,7 +142,7 @@ async def test_get_user_org_empty_response(
     optscale_org_api_instance, mock_api_client_get, mock_auth_token, optscale_auth_api
 ):
     mock_api_client_get.return_value = {"organizations": []}
-    result = await optscale_org_api_instance.get_user_org(
+    result = await optscale_org_api_instance.access_user_org_list_with_admin_key(
         user_id="test_user", admin_api_key="test_key", auth_client=optscale_auth_api
     )
     assert result == {"organizations": []}
@@ -168,7 +168,7 @@ async def test_get_user_org_response_error(
         with pytest.raises(
             OptScaleAPIResponseError, match="Error response from OptScale"
         ):  # noqa: PT012
-            await optscale_org_api_instance.get_user_org(
+            await optscale_org_api_instance.access_user_org_list_with_admin_key(
                 user_id="test_user",
                 admin_api_key="test_key",
                 auth_client=optscale_auth_api,
@@ -185,7 +185,7 @@ async def test_get_user_orgs_exceptions_handling(
     mock_api_client_get.side_effect = UserAccessTokenError("Access Token exception")
     with caplog.at_level(logging.ERROR):
         with pytest.raises(UserAccessTokenError, match="Access Token exception"):
-            await optscale_org_api_instance.get_user_org(
+            await optscale_org_api_instance.access_user_org_list_with_admin_key(
                 user_id="test_user",
                 admin_api_key="test_key",
                 auth_client=optscale_auth_api,
@@ -199,7 +199,7 @@ async def test_get_user_orgs_exceptions_handling(
     mock_api_client_get.side_effect = Exception("Generic Exception")
     with caplog.at_level(logging.ERROR):
         with pytest.raises(Exception, match="Generic Exception"):
-            await optscale_org_api_instance.get_user_org(
+            await optscale_org_api_instance.access_user_org_list_with_admin_key(
                 user_id="test_user",
                 admin_api_key="test_key",
                 auth_client=optscale_auth_api,

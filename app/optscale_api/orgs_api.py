@@ -31,8 +31,32 @@ class OptScaleOrgAPI:
     def __init__(self):
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
 
-    async def get_user_org(
-        self, user_id: str, admin_api_key: str, auth_client: OptScaleAuth
+    async def get_user_org_list(self, user_access_token: str):
+        """
+        Returns
+        :param user_access_token: The Access Token of the given user
+        :return:
+        """
+        response = await self.api_client.get(
+            endpoint=ORG_ENDPOINT,
+            headers=build_bearer_token_header(bearer_token=user_access_token),
+        )
+
+        if response.get("error"):
+            logger.error("Failed to get the org list from OptScale")
+            raise OptScaleAPIResponseError(
+                title="Error response from OptScale",
+                reason=response.get("data", {}).get("error", {}).get("reason", ""),
+                status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
+            )
+        logger.info(f"Successfully fetched user's org {response}")
+        return response
+
+    async def access_user_org_list_with_admin_key(
+        self,
+        auth_client: OptScaleAuth,
+        user_id: str,
+        admin_api_key: str,
     ) -> dict:
         """
         Retrieves the organization for a given user
@@ -64,27 +88,11 @@ class OptScaleOrgAPI:
         }
         """
         try:
-            # get the user's org
             user_access_token = await get_user_access_token(
                 user_id=user_id, admin_api_key=admin_api_key, auth_client=auth_client
             )
-            response = await self.api_client.get(
-                endpoint=ORG_ENDPOINT,
-                headers=build_bearer_token_header(bearer_token=user_access_token),
-            )
-
-            if response.get("error"):
-                logger.error(
-                    f"Failed to get the org data from OptScale for the user {user_id}"
-                )
-                raise OptScaleAPIResponseError(
-                    title="Error response from OptScale",
-                    reason=response.get("data", {}).get("error", {}).get("reason", ""),
-                    status_code=response.get(
-                        "status_code", http_status.HTTP_403_FORBIDDEN
-                    ),
-                )
-            logger.info(f"Successfully fetched user's org {response}")
+            response = await self.get_user_org_list(user_access_token=user_access_token)
+            logger.info(f"Successfully fetched user's org list {response}")
             return response
 
         except UserAccessTokenError as error:

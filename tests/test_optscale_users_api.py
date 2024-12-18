@@ -34,6 +34,15 @@ def mock_get(mocker, optscale_api):
     return mock_get
 
 
+@pytest.fixture
+def mock_delete(mocker, optscale_api):
+    """Mock the `get` method in `api_client`."""
+    mock_delete = mocker.patch.object(
+        optscale_api.api_client, "delete", new=AsyncMock()
+    )
+    return mock_delete
+
+
 async def test_create_valid_user(optscale_api, mock_post):
     mock_response = {
         "created_at": 1730126521,
@@ -170,3 +179,29 @@ async def test_get_user_with_invalid_admin_api_key(optscale_api, mock_get):
         mock_get.assert_called_once_with(
             endpoint=f"/auth/v2/users/{USER_ID}", headers={"Secret": "invalid_key"}
         )
+
+
+async def test_delete_user(optscale_api, mock_delete, caplog):
+    mock_response = {"status_code": 204}
+    mock_delete.return_value = mock_response
+    await optscale_api.delete_user(user_id="user_id", admin_api_key="test_key")
+    assert "User user_id successfully deleted" == caplog.messages[0]
+    mock_delete.assert_called_once_with(
+        endpoint="/auth/v2/users/user_id", headers={"Secret": "test_key"}
+    )
+
+
+async def test_delete_user_exception_handling(optscale_api, mock_delete, caplog):
+    mock_response = {
+        "error": {
+            "status_code": 403,
+            "error_code": "OA0006",
+            "reason": "Bad secret",
+            "params": [],
+        }
+    }
+    mock_delete.return_value = mock_response
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(OptScaleAPIResponseError):
+            await optscale_api.delete_user(user_id="user_id", admin_api_key="test_key")
+        assert "Failed to delete the user user_id from OptScale" == caplog.messages[0]
