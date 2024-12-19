@@ -77,12 +77,14 @@ async def validate_user_delete(
 async def remove_user(
     user_id: str,
     user_access_token: str,
+    admin_api_key: str,
     invitation_api: OptScaleInvitationAPI = Depends(),
     org_api: OptScaleOrgAPI = Depends(),
     user_api: OptScaleUserAPI = Depends(),
 ) -> bool:
     """
     Removes a user if they have no invitations or organizations.
+    :param admin_api_key: The Secret admin key to add to the Headers
     :param user_id: the user ID to be deleted
     :param user_access_token: The Access Token of the given User
     :param invitation_api: An instance of the OptScaleInvitationAPI
@@ -98,7 +100,8 @@ async def remove_user(
     if validate_delete:
         try:
             await user_api.delete_user(
-                user_id=user_id, admin_api_key=settings.admin_token
+                user_id=user_id,
+                admin_api_key=admin_api_key,
             )
             logger.info(f"The user {user_id} was successfully deleted")
             return True

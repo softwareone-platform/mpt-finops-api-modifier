@@ -84,6 +84,7 @@ async def decline_invitation(
             invitation_api=invitation_api,
             org_api=org_api,
             user_api=user_api,
+            admin_api_key=settings.admin_token,
         )
         return JSONResponse(
             status_code=response.get("status_code", http_status.HTTP_200_OK),

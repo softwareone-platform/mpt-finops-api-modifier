@@ -192,6 +192,7 @@ async def test_remove_user_success(
         invitation_api=invitation_api,
         org_api=org_api,
         user_api=user_api,
+        admin_api_key="your admin token here",
     )
 
     assert result is True
@@ -202,7 +203,7 @@ async def test_remove_user_success(
         user_access_token=user_access_token
     )
     user_api.delete_user.assert_called_once_with(
-        user_id=user_id, admin_api_key="f1a75f1a-36a0-4994-9d9e-36e52f1b2345"
+        user_id=user_id, admin_api_key="your admin token here"
     )
 
 
@@ -222,6 +223,7 @@ async def test_remove_user_fail(
         invitation_api=invitation_api,
         org_api=org_api,
         user_api=user_api,
+        admin_api_key="your_admin_key_here",
     )
     assert "The user user_id cannot be deleted." == caplog.messages[0]
     assert result is False
@@ -249,6 +251,7 @@ async def test_remove_user_exception_handling(
         invitation_api=invitation_api,
         org_api=org_api,
         user_api=user_api,
+        admin_api_key="your_admin_key_here",
     )
     assert "Error deleting user:user_id" == caplog.messages[0]
     assert result is False
