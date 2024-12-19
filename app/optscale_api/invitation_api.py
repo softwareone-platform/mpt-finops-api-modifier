@@ -19,11 +19,12 @@ class OptScaleInvitationAPI:
 
     async def decline_invitation(self, user_access_token: str, invitation_id: str):
         """
-
-        :param invitation_id:
-        :type invitation_id:
-        :param user_access_token:
-        :return:
+        It declines the invitation identified by the given invitation_id.
+        :param invitation_id: The invitation id
+        :param user_access_token: The access token of the invited user
+        :return: no-content 204
+        :raises: OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
         """
         payload = {"action": "decline"}
         headers = build_bearer_token_header(bearer_token=user_access_token)
@@ -40,13 +41,45 @@ class OptScaleInvitationAPI:
                 status_code=response.get("status_code", http_status.HTTP_403_FORBIDDEN),
             )
         logger.info(f"Invitation {invitation_id} has been declined")
-        return response
+        return {}
 
-    async def get_list_of_invitations(self, user_access_token: str):
+    async def get_list_of_invitations(
+        self, user_access_token: str
+    ) -> dict[str, list[dict[str, any]]] | Exception:
         """
-
-        :param user_access_token:
+        It returns a list of invitations
+        :param user_access_token: The access token of the given user
         :return:
+
+        {"data": {
+            "invites":
+            [
+                {
+                    "deleted_at": 0,
+                    "id": "f69731ee-306b-47ff-947e-2a93504922ac",
+                    "created_at": 1734368623,
+                    "email": "user_test_2@test.com",
+                    "owner_id": "1d49c92b-60d0-457b-8d4d-6d785b677098",
+                    "ttl": 1736960623,
+                    "owner_name": "Dylan Dog4",
+                    "owner_email": "dyland.dog6@mystery.com",
+                    "organization": "My Super Cool Corp",
+                    "organization_id": "f36f7e43-1eb2-4160-8bc6-06ca91fdb0bf",
+                    "invite_assignments": [
+                        {
+                            "id": "c2fbda25-16ad-4027-ba09-908eed2485ba",
+                            "scope_id": "f36f7e43-1eb2-4160-8bc6-06ca91fdb0bf",
+                            "scope_type": "organization",
+                            "purpose": "optscale_member",
+                            "scope_name": "My Super Cool Corp"
+                        }
+                    ]
+                }
+            ]
+        }
+        :raises: OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
+
         """
         headers = build_bearer_token_header(bearer_token=user_access_token)
         response = await self.api_client.get(

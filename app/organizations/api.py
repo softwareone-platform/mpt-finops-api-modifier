@@ -99,8 +99,6 @@ async def create_orgs(
     """
     Create a new FinOPs organization.
 
-    .
-
     :param data: The input data required to create an organization,including the user_id
     :param org_api: An instance of OptScaleOrgAPI for managing organization operations.
                     Dependency injection via `Depends()`.

@@ -72,19 +72,7 @@ async def test_create_org_with_valid_token(
 ):
     payload = test_data["org"]["case_create"]["payload"]
     jwt_token = create_jwt_token()
-    mock_response = {
-        "status_code": 201,
-        "data": {
-            "deleted_at": 0,
-            "created_at": 1731919809,
-            "id": "3e61c772-b78a-4345-b7da-5243b09bfe03",
-            "name": "MyOrg",
-            "pool_id": "0bc61f62-f280-4a03-bf3f-446b14994594",
-            "is_demo": False,
-            "currency": "USD",
-            "cleaned_at": 0,
-        },
-    }
+    mock_response = test_data["org"]["case_create"]["response"]
     # set return value for the mock `create_org` method
     mock_create_org.return_value = mock_response
 
@@ -95,7 +83,7 @@ async def test_create_org_with_valid_token(
     # Verify the response status and JSON structure
     assert response.status_code == 201, "Expected 201 Created for valid org creation"
     got = response.json()
-    want = test_data["org"]["case_create"]["response"]
+    want = test_data["org"]["case_create"]["response"]["data"]
     for k, v in want.items():
         assert (
             got[k] == v

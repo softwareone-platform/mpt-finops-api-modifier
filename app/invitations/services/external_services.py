@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 
@@ -14,13 +16,17 @@ logger = logging.getLogger(__name__)
 
 async def register_invited_user_on_optscale(
     email: str, display_name: str, password: str
-):
+) -> dict[str, str] | Exception:
     """
+    Registers invited users to OptScale, without
+    verification.
 
-    :param email:
-    :param display_name:
-    :param password:
-    :return:
+    :param email: The email of the given user to register
+    :param display_name: The display name of the user
+    :param password: The password of the user
+    :return: dict[str, str] : User information.
+    :raises: OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
     """
     user_api = OptScaleUserAPI()
     try:
@@ -50,6 +56,7 @@ async def validate_user_delete(
     :param org_api: An instance of OptScaleOrgAPI
     :param user_token: The Access Token of the user to be deleted
     :return: True if the user has no invitations and organizations. False, otherwise
+    :raises An Exception if an error occurs.
     """
     try:
         response_invitation, response_organization = await asyncio.gather(
@@ -82,6 +89,8 @@ async def remove_user(
     :param org_api: an instance of the OptScaleOrgAPI
     :param user_api: An instance of OptScaleUserAPI
     :return: True if the user was successfully deleted, False otherwise.
+    :raises OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
     """
     validate_delete = await validate_user_delete(
         user_token=user_access_token, invitation_api=invitation_api, org_api=org_api

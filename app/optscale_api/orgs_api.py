@@ -31,11 +31,29 @@ class OptScaleOrgAPI:
     def __init__(self):
         self.api_client = APIClient(base_url=settings.opt_scale_api_url)
 
-    async def get_user_org_list(self, user_access_token: str):
+    async def get_user_org_list(
+        self, user_access_token: str
+    ) -> dict[str, list[dict[str, any]]] | Exception:  # noqa: E501
         """
-        Returns
+        It returns a list of the organizations the user owns, identified by the given
+        user_access_token.
         :param user_access_token: The Access Token of the given user
-        :return:
+        :return: A list of dicts like the following
+        {"data": {"organizations": [
+                {
+                    "deleted_at": 0,
+                    "created_at": 1731919809,
+                    "id": "3e61c772-b78a-4345-b7da-5243b09bfe03",
+                    "name": "MyOrg",
+                    "pool_id": "0bc61f62-f280-4a03-bf3f-446b14994594",
+                    "is_demo": false,
+                    "currency": "USD",
+                    "cleaned_at": 0
+                }
+            ]}
+        }
+         :raises: OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
         """
         response = await self.api_client.get(
             endpoint=ORG_ENDPOINT,
@@ -57,9 +75,11 @@ class OptScaleOrgAPI:
         auth_client: OptScaleAuth,
         user_id: str,
         admin_api_key: str,
-    ) -> dict:
+    ) -> dict[str, list[dict[str, any]]] | Exception:  # noqa: E501
         """
-        Retrieves the organization for a given user
+        It retrieves the list of organizations owned by any user identified by their user_id
+        whose access token is generated using the admin-level operation
+        provided by the admin_api_key.
 
         :param auth_client: An instance of the `OptScaleAuth` class used to interact
             with the authentication service.

@@ -11,17 +11,6 @@ from app.core.exceptions import (
 from app.optscale_api.auth_api import OptScaleAuth
 from app.optscale_api.orgs_api import OptScaleOrgAPI
 
-ORG_RESPONSE = {
-    "deleted_at": 0,
-    "created_at": 1729695339,
-    "id": "dcbe83cd-18bf-4951-87aa-2764d723535b",
-    "name": "MyOrg",
-    "pool_id": "90991262-16ec-4246-be18-a22a31eeec57",
-    "is_demo": False,
-    "currency": "USD",
-    "cleaned_at": 0,
-}
-
 
 @pytest.fixture
 def optscale_org_api_instance():
@@ -70,11 +59,15 @@ def mock_invalid_auth_token(mocker, optscale_auth_api):
 
 
 async def test_create_user_org(
-    optscale_org_api_instance, mock_api_client_post, mock_auth_token, optscale_auth_api
+    optscale_org_api_instance,
+    mock_api_client_post,
+    mock_auth_token,
+    optscale_auth_api,
+    test_data: dict,
 ):
-    mock_api_client_post.return_value = ORG_RESPONSE
+    mock_api_client_post.return_value = test_data["org"]["case_create"]["response"]
 
-    result = await optscale_org_api_instance.create_user_org(
+    response = await optscale_org_api_instance.create_user_org(
         org_name="MyOrg",
         currency="USD",
         user_id="test_user",
@@ -82,7 +75,13 @@ async def test_create_user_org(
         auth_client=optscale_auth_api,
     )
 
-    assert result == ORG_RESPONSE
+    got = response
+    want = test_data["org"]["case_create"]["response"]
+    for k, v in want.items():
+        assert (
+            got[k] == v
+        ), f"Mismatch in response for key '{k}': expected {v}, got {got[k]}"
+
     # Assert that mock_post was called with expected arguments
     mock_api_client_post.assert_called_once_with(
         endpoint="/restapi/v2/organizations",

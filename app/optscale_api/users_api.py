@@ -67,9 +67,9 @@ class OptScaleUserAPI:
         """
         Retrieves a user's information
 
-        :param admin_api_key: the secret admin API key
-        :param user_id: the user's ID for whom we want to retrieve the information
-        :return: a dict with the user's information if found
+        :param admin_api_key: The secret admin API key
+        :param user_id: The user's ID for whom we want to retrieve the information
+        :return: A dict with the user's information if found
         :raises OptScaleAPIResponseError if any error occurs
         contacting the OptScale APIs
         example
@@ -105,6 +105,14 @@ class OptScaleUserAPI:
         return response
 
     async def delete_user(self, user_id: str, admin_api_key: str):
+        """
+        Removes a user from OptScale
+        :param user_id: The ID of the user to remove
+        :param admin_api_key: The secret admin API key
+        :return: No content if the operation is completed without errors.
+        :raises: OptScaleAPIResponseError if any error occurs
+        contacting the OptScale APIs
+        """
         headers = build_admin_api_key_header(admin_api_key=admin_api_key)
         response = await self.api_client.delete(
             endpoint=AUTH_USERS_ENDPOINT + f"/{user_id}", headers=headers

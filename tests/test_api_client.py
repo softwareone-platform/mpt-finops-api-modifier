@@ -16,7 +16,6 @@ def mock_request_instance():
     return Request(method="GET", url="http://testserver/endpoint")
 
 
-@pytest.mark.asyncio
 @patch("httpx.AsyncClient.request")
 async def test_make_request_success(mock_request, api_client, mock_request_instance):
     """Test a successful JSON response."""
@@ -33,7 +32,17 @@ async def test_make_request_success(mock_request, api_client, mock_request_insta
     assert "error" not in response
 
 
-@pytest.mark.asyncio
+@patch("httpx.AsyncClient.request")
+async def test_make_request_204_success(
+    mock_request, api_client, mock_request_instance
+):
+    """Test a successful JSON response."""
+    mock_response = Response(status_code=204, request=mock_request_instance)
+    mock_request.return_value = mock_response
+    response = await api_client._make_request("GET", "/endpoint")
+    assert response == {}
+
+
 @patch("httpx.AsyncClient.request")
 async def test_make_request_plain_text_response(
     mock_request, api_client, mock_request_instance
@@ -51,7 +60,6 @@ async def test_make_request_plain_text_response(
     assert response["error"] == "Response is not JSON"
 
 
-@pytest.mark.asyncio
 @patch("httpx.AsyncClient.request")
 async def test_make_request_json_value_error_response(
     mock_request, api_client, mock_request_instance
@@ -75,7 +83,6 @@ async def test_make_request_json_value_error_response(
     assert response["error"] == "Invalid JSON format in response"
 
 
-@pytest.mark.asyncio
 @patch("httpx.AsyncClient.request")
 async def test_make_request_http_request_error(
     mock_request, api_client, mock_request_instance
@@ -90,7 +97,6 @@ async def test_make_request_http_request_error(
     assert response["error"] == "Connection error: Connection failed"
 
 
-@pytest.mark.asyncio
 @patch("httpx.AsyncClient.request")
 async def test_make_request_http_status_error(
     mock_request, api_client, mock_request_instance
@@ -116,7 +122,6 @@ async def test_make_request_http_status_error(
     assert response["error"] == 'HTTP error: 404 - {"detail":"Not Found"}'
 
 
-@pytest.mark.asyncio
 @patch("httpx.AsyncClient.request")
 async def test_make_request_generic_exception_logging(mock_request, caplog, api_client):
     """Test logging of generic exceptions."""
@@ -137,7 +142,6 @@ async def test_make_request_generic_exception_logging(mock_request, caplog, api_
     )
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "method, endpoint, status_code, expected_data",  # noqa: PT006
     [
@@ -192,7 +196,6 @@ async def test_api_client_methods(
     assert response["data"] == expected_data
 
 
-@pytest.mark.asyncio
 async def test_api_client_close():
     """Test the close method of APIClient."""
     # Create an APIClient instance
