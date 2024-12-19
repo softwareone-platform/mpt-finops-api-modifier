@@ -73,7 +73,7 @@ async def get_orgs(
     """
     try:
         # send request with the Secret token to the OptScale API
-        response = await optscale_api.get_user_org(
+        response = await optscale_api.access_user_org_list_with_admin_key(
             user_id=user_id, admin_api_key=settings.admin_token, auth_client=auth_client
         )
         return JSONResponse(
@@ -98,8 +98,6 @@ async def create_orgs(
 ):
     """
     Create a new FinOPs organization.
-
-    .
 
     :param data: The input data required to create an organization,including the user_id
     :param org_api: An instance of OptScaleOrgAPI for managing organization operations.

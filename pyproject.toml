@@ -54,7 +54,6 @@ omit = [
     "app/core/models.py",
     "*/tests/*",
     "app/utils/database/init_db.py",
-    "app/invitations/*",
     "app/datasources/*",
     "app/router/api_v1/endpoints.py",
     "init_db.py",

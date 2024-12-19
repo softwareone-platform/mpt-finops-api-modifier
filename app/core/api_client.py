@@ -84,6 +84,8 @@ class APIClient:
                     }
             else:
                 # Handle non-JSON response
+                if response.status_code == 204:
+                    return {}
                 logger.warning(
                     "Response is not JSON as indicated by Content-Type header."
                 )

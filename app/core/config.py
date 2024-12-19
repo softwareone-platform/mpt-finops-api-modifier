@@ -1,4 +1,8 @@
-from pydantic_settings import BaseSettings
+import pathlib
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+PROJECT_ROOT = pathlib.Path(__file__).parent.parent
 
 
 class Settings(BaseSettings):
@@ -18,5 +22,7 @@ class Settings(BaseSettings):
     leeway: float = 30.0
     default_request_timeout: int = 10  # API Client
 
-    class Config:
-        env_file = "/app/.env.test"
+    model_config = SettingsConfigDict(
+        env_file=PROJECT_ROOT / ".env",
+        env_file_encoding="utf-8",
+    )

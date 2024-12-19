@@ -69,21 +69,8 @@ async def test_obtain_user_auth_token_with_admin_api_key_error_response(
 async def test_user_auth_token_with_not_matching_user_id(
     async_client: AsyncClient, test_data: dict, mock_post, opt_scale_auth, caplog
 ):
-    mock_response = {
-        "data": {
-            "token": "MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBmMGJkMGM0YS03YzU1LTQ1YjctOGI1OC0y"  # noqa: E501
-            "Nzc0MGUzODc4OWEKMDAyM2NpZCBjcmVhdGVkOjE3MzAxNDA3MDEuNzk3NDA5MwowMDE3Y2lkIHJlZ2l"
-            "zdGVyOkZhbHNlCjAwMWFjaWQgcHJvdmlkZXI6b3B0c2NhbGUKMDAyZnNpZ25hdHVyZSDAiphxSkvSmiZI"
-            "6eqCgqohlKYCzcKCchmHES38yC96nQo",
-            "digest": "0a498f9f0aeadd67a59b93cbde528a45",
-            "user_id": "sdedds-7c55-45b7-8b58-27740e38789a",
-            "created_at": "2024-10-28T18:38:21",
-            "valid_until": "2024-11-04T18:38:21",
-            "ip": "1.2.3.4",
-            "user_email": "peter.parker@iamspiderman.com",
-        },
-        "status": 201,
-    }
+    mock_response = test_data["auth_token"]["create"]
+    mock_response["data"]["user_id"] = "sdedds-7c55-45b7-8b58-27740e38789a"
     mock_post.return_value = mock_response
     with caplog.at_level(logging.ERROR):
         with pytest.raises(UserAccessTokenError):  # noqa: PT012

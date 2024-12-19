@@ -17,7 +17,7 @@ def mock_jwt_bearer():
 
 def pytest_configure():
     # Override settings with defaults for testing
-    settings.Config.env_file = "/app/.env.test"  # to match the container path
+    settings.model_config["env_file"] = "/app/.env.test"
 
 
 # Override JWTBearer dependency for all tests
