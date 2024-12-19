@@ -52,7 +52,7 @@ async def register_invited(data: RegisterInvitedUser):
 
 @router.post(
     path="/users/invites/{invite_id}/decline",
-    status_code=http_status.HTTP_204_NO_CONTENT,
+    status_code=http_status.HTTP_200_OK,
     dependencies=[Depends(JWTBearer())],
 )
 async def decline_invitation(
