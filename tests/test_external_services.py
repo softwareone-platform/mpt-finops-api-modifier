@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from app.core.exceptions import OptScaleAPIResponseError
-from app.invitations.services.external_services import remove_user, validate_user_delete
+from app.invitations.services.invitations import remove_user, validate_user_delete
 from app.optscale_api.users_api import OptScaleUserAPI
 
 USER_ID = "f0bd0c4a-7c55-45b7-8b58-27740e38789a"

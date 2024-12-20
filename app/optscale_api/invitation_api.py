@@ -7,7 +7,10 @@ from fastapi import status as http_status
 from app import settings
 from app.core.api_client import APIClient
 from app.core.exceptions import OptScaleAPIResponseError
-from app.optscale_api.auth_api import build_bearer_token_header
+from app.optscale_api.auth_api import (
+    build_admin_api_key_header,
+    build_bearer_token_header,
+)
 
 INVITATION_ENDPOINT = "/restapi/v2/invites"
 logger = logging.getLogger(__name__)
@@ -44,10 +47,12 @@ class OptScaleInvitationAPI:
         return {}
 
     async def get_list_of_invitations(
-        self, user_access_token: str
+        self, user_access_token: str | None = None, email: str | None = None
     ) -> dict[str, list[dict[str, any]]] | Exception:
         """
         It returns a list of invitations
+        :param email: if provided, the invitation will be searched using the email address and
+        with the Secret admin key.
         :param user_access_token: The access token of the given user
         :return:
 
@@ -81,9 +86,18 @@ class OptScaleInvitationAPI:
         contacting the OptScale APIs
 
         """
-        headers = build_bearer_token_header(bearer_token=user_access_token)
+        if not user_access_token and not email:
+            logger.error("Both 'user_access_token' and 'email' cannot be None.")
+            raise ValueError("Both 'user_access_token' and 'email' cannot be None.")
+
+        if email is not None:
+            headers = build_admin_api_key_header(admin_api_key=settings.admin_token)
+            params = {"email": email}
+        else:
+            headers = build_bearer_token_header(bearer_token=user_access_token)
+            params = None
         response = await self.api_client.get(
-            endpoint=INVITATION_ENDPOINT, headers=headers
+            endpoint=INVITATION_ENDPOINT, headers=headers, params=params
         )
         if response.get("error"):
             logger.error("Failed to get list of invitations.")

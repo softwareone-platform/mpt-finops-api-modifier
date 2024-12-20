@@ -78,36 +78,23 @@ async def test_decline_invitation_using_not_valid_invitation(
 
 
 async def test_get_list_of_invitations(
-    async_client: AsyncClient, mock_get, opt_scale_invitation, caplog
+    async_client: AsyncClient, mock_get, opt_scale_invitation, caplog, test_data: dict
 ):
-    mock_response = {
-        "invites": [
-            {
-                "deleted_at": 0,
-                "id": "f69731ee-306b-47ff-947e-2a93504922ac",
-                "created_at": 1734368623,
-                "email": "user_test_2@test.com",
-                "owner_id": "1d49c92b-60d0-457b-8d4d-6d785b677098",
-                "ttl": 1736960623,
-                "owner_name": "Dylan Dog4",
-                "owner_email": "dyland.dog6@mystery.com",
-                "organization": "My Super Cool Corp",
-                "organization_id": "f36f7e43-1eb2-4160-8bc6-06ca91fdb0bf",
-                "invite_assignments": [
-                    {
-                        "id": "c2fbda25-16ad-4027-ba09-908eed2485ba",
-                        "scope_id": "f36f7e43-1eb2-4160-8bc6-06ca91fdb0bf",
-                        "scope_type": "organization",
-                        "purpose": "optscale_member",
-                        "scope_name": "My Super Cool Corp",
-                    }
-                ],
-            }
-        ]
-    }
+    mock_response = test_data["invitation"]["case_get"]["response"]
     mock_get.return_value = mock_response
     response = await opt_scale_invitation.get_list_of_invitations(
         user_access_token="user_token"
+    )
+    assert response == mock_response
+
+
+async def test_get_list_of_invitations_with_email(
+    async_client: AsyncClient, mock_get, opt_scale_invitation, caplog, test_data: dict
+):
+    mock_response = test_data["invitation"]["case_get"]["response"]
+    mock_get.return_value = mock_response
+    response = await opt_scale_invitation.get_list_of_invitations(
+        email="user_test_2@test.com"
     )
     assert response == mock_response
 
@@ -134,3 +121,27 @@ async def test_get_list_of_invitations_error(
                 user_access_token="user_token"
             )
         assert "Failed to get list of invitations." == caplog.messages[0]
+
+
+async def test_get_list_of_invitations_value_error(
+    async_client: AsyncClient, mock_get, opt_scale_invitation, caplog
+):
+    mock_response = {
+        "status_code": 403,
+        "data": {
+            "error": {
+                "status_code": 403,
+                "error_code": "OA0042",
+                "reason": "Test",
+            }
+        },
+        "error": 'HTTP error: 403 - {"error": {"status_code": 403, "error_code": "OA0042",'  # noqa: E501
+        '"reason": "Test"}}',
+    }
+    mock_get.return_value = mock_response
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(ValueError):  # noqa: PT012
+            await opt_scale_invitation.get_list_of_invitations()
+        assert (
+            "Both 'user_access_token' and 'email' cannot be None." == caplog.messages[0]
+        )
