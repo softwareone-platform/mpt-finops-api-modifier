@@ -28,6 +28,12 @@ class UserOrgCreationError(Exception):
     pass
 
 
+class InvitationDoesNotExist(Exception):
+    """Custom exception for validating a user invitation ."""
+
+    pass
+
+
 class OptScaleAPIResponseError(Exception):
     """
     Custom exception class for handling errors in the OptScale API responses.

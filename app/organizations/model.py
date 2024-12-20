@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CreateOrgData(BaseModel):
@@ -17,8 +17,8 @@ class OptScaleOrganization(BaseModel):
     deleted_at: int
     is_demo: bool
     currency: str
-    model_config = {
-        "json_schema_extra": {
+    model_config = ConfigDict(
+        json_schema_extra={
             "examples": [
                 {
                     "id": "64a7424c-0745-4926-bb6d-2125b16c91f9",
@@ -31,7 +31,7 @@ class OptScaleOrganization(BaseModel):
                 }
             ]
         }
-    }
+    )
 
 
 class OptScaleOrganizationResponse(BaseModel):
